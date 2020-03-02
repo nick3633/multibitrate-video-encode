@@ -1,9 +1,8 @@
 import subprocess
-import math
 import os
 
-def avc_enc(video_input, res, fps_denominator, fps_numerator, filter_res_type, pix_convert, in_dr):
 
+def avc_enc(video_input, res, fps_denominator, fps_numerator, filter_res_type, pix_convert, in_dr):
     if os.path.exists(res + '-avc-pass2.mp4'):
         return None
 
@@ -70,18 +69,19 @@ def avc_enc(video_input, res, fps_denominator, fps_numerator, filter_res_type, p
 
     pass1_bufsize = str(round(pass1_maxrate * 4)) + 'K'
     pass1_maxrate = str(round(pass1_maxrate)) + 'K'
-        
+
     hdr_to_sdr = ''
     if in_dr == 'HDR 10':
         hdr_to_sdr = ',scale=-1:-1:in_color_matrix=bt2020,format=rgb48,lut3d=bt2020_to_bt709_example.cube,scale=-1:-1:out_color_matrix=bt709'
 
     enc_cmd = ('ffmpeg -i "' + video_input +
-        '" -vf "fps=fps=' + str(fps_denominator) + '/' + str(fps_numerator) + ',scale=' + filter_res + hdr_to_sdr + ',' + pix_convert + '" -color_primaries 1 -color_trc 1 -colorspace 1 -color_range 1 ' +
-        ' -c:v libx264 -preset medium -pass 1 ' +
-        ' -crf ' + crf + ' -maxrate ' + pass1_maxrate + ' -bufsize ' + pass1_bufsize + ' -profile:v ' + profile_v +
-        ' -g ' + str(round(keyint)) + ' -keyint_min ' + str(round(keyint)) + ' -sc_threshold 0' +
-        ' -x264-params "aq-mode=1" ' +
-        ' -an -passlogfile ' + res + '-avc-2pass ' + res + '-avc-pass1.mp4 ')
+               '" -vf "fps=fps=' + str(fps_denominator) + '/' + str(
+                fps_numerator) + ',scale=' + filter_res + hdr_to_sdr + ',' + pix_convert + '" -color_primaries 1 -color_trc 1 -colorspace 1 -color_range 1 ' +
+               ' -c:v libx264 -preset medium -pass 1 ' +
+               ' -crf ' + crf + ' -maxrate ' + pass1_maxrate + ' -bufsize ' + pass1_bufsize + ' -profile:v ' + profile_v +
+               ' -g ' + str(round(keyint)) + ' -keyint_min ' + str(round(keyint)) + ' -sc_threshold 0' +
+               ' -x264-params "aq-mode=1" ' +
+               ' -an -passlogfile ' + res + '-avc-2pass ' + res + '-avc-pass1.mp4 ')
 
     print(enc_cmd)
     subprocess.call(enc_cmd, shell=True)
@@ -98,12 +98,13 @@ def avc_enc(video_input, res, fps_denominator, fps_numerator, filter_res_type, p
         os.remove("" + res + "-avc-pass1.mp4")
 
     enc_cmd = ('ffmpeg -i "' + video_input +
-        '" -vf "fps=fps=' + str(fps_denominator) + '/' + str(fps_numerator) + ',scale=' + filter_res + hdr_to_sdr + ',' + pix_convert + '" -color_primaries 1 -color_trc 1 -colorspace 1 -color_range 1 ' +
-        '-c:v libx264 -preset medium -pass 2 ' +
-        '-b:v ' + pass2_bitrate + ' -maxrate ' + pass2_maxrate + pass2_rc + ' -bufsize ' + pass2_bufsize + ' ' +
-        '-g ' + str(round(keyint)) + ' -keyint_min ' + str(round(keyint)) + ' -sc_threshold 0' +
-        ' -x264-params "aq-mode=1" ' +
-        ' -map_metadata -1 -an -passlogfile ' + res + '-avc-2pass ' + res + '-avc-pass2.mp4')
+               '" -vf "fps=fps=' + str(fps_denominator) + '/' + str(
+                fps_numerator) + ',scale=' + filter_res + hdr_to_sdr + ',' + pix_convert + '" -color_primaries 1 -color_trc 1 -colorspace 1 -color_range 1 ' +
+               '-c:v libx264 -preset medium -pass 2 ' +
+               '-b:v ' + pass2_bitrate + ' -maxrate ' + pass2_maxrate + pass2_rc + ' -bufsize ' + pass2_bufsize + ' ' +
+               '-g ' + str(round(keyint)) + ' -keyint_min ' + str(round(keyint)) + ' -sc_threshold 0' +
+               ' -x264-params "aq-mode=1" ' +
+               ' -map_metadata -1 -an -passlogfile ' + res + '-avc-2pass ' + res + '-avc-pass2.mp4')
 
     print(enc_cmd)
     subprocess.call(enc_cmd, shell=True)
@@ -115,7 +116,6 @@ def avc_enc(video_input, res, fps_denominator, fps_numerator, filter_res_type, p
 
 
 def hevc_enc(video_input, res, fps_denominator, fps_numerator, filter_res_type, pix_convert, in_dr):
-
     if os.path.exists(res + '-hevc-pass2.mp4'):
         return None
 
@@ -126,7 +126,7 @@ def hevc_enc(video_input, res, fps_denominator, fps_numerator, filter_res_type, 
     pass1_rc = None
     pass2_r_fac = None
     pass2_rc = None
-    
+
     if res == '2160p':
         crf = '23'
         filter_res_w = '3840:-2'
@@ -175,7 +175,7 @@ def hevc_enc(video_input, res, fps_denominator, fps_numerator, filter_res_type, 
         filter_res_h = '-2:240'
         pass1_maxrate = 16000 / 81
         pass2_r_fac = (81 / 80) * (17 / 18)
-        pass2_level = '2.1'        
+        pass2_level = '2.1'
     elif res == '144p':
         crf = '23'
         filter_res_w = '256:-2'
@@ -183,12 +183,12 @@ def hevc_enc(video_input, res, fps_denominator, fps_numerator, filter_res_type, 
         pass1_maxrate = 640 / 9
         pass2_r_fac = (9 / 8) * (29 / 30)
         pass2_level = '2.0'
-        
+
     if filter_res_type == 'w':
         filter_res = filter_res_w
     elif filter_res_type == 'h':
         filter_res = filter_res_h
-        
+
     hdr_to_sdr = ''
     if in_dr == 'HDR 10':
         hdr_to_sdr = ',scale=-1:-1:in_color_matrix=bt2020,format=rgb48le,lut3d=bt2020_to_bt709_example.cube,scale=-1:-1:out_color_matrix=bt709'
@@ -197,11 +197,13 @@ def hevc_enc(video_input, res, fps_denominator, fps_numerator, filter_res_type, 
     pass1_maxrate = str(round(pass1_maxrate)) + 'K'
 
     enc_cmd = ('ffmpeg -i "' + video_input +
-        '" -vf "fps=fps=' + str(fps_denominator) + '/' + str(fps_numerator) + ',scale=' + filter_res + hdr_to_sdr + ',' + pix_convert + '" -color_primaries 1 -color_trc 1 -colorspace 1 -color_range 1 ' +
-        ' -c:v libx265 -preset medium ' +
-        ' -crf ' + crf + ' -maxrate ' + pass1_maxrate + ' -bufsize ' + pass1_bufsize +
-        ' -x265-params "no-info=1:aq-mode=1:keyint=' + str(round(keyint)) + ':min-keyint=' + str(round(keyint)) + ':no-scenecut=1:pass=1:stats=' + res + '-hevc-2pass.log" ' +
-        ' -an ' + res + '-hevc-pass1.mp4 ')
+               '" -vf "fps=fps=' + str(fps_denominator) + '/' + str(
+                fps_numerator) + ',scale=' + filter_res + hdr_to_sdr + ',' + pix_convert + '" -color_primaries 1 -color_trc 1 -colorspace 1 -color_range 1 ' +
+               ' -c:v libx265 -preset medium ' +
+               ' -crf ' + crf + ' -maxrate ' + pass1_maxrate + ' -bufsize ' + pass1_bufsize +
+               ' -x265-params "no-info=1:aq-mode=1:keyint=' + str(round(keyint)) + ':min-keyint=' + str(
+                round(keyint)) + ':no-scenecut=1:pass=1:stats=' + res + '-hevc-2pass.log" ' +
+               ' -an ' + res + '-hevc-pass1.mp4 ')
 
     print(enc_cmd)
     subprocess.call(enc_cmd, shell=True)
@@ -218,17 +220,19 @@ def hevc_enc(video_input, res, fps_denominator, fps_numerator, filter_res_type, 
         os.remove("" + res + "-hevc-pass1.mp4")
 
     enc_cmd = ('ffmpeg -i "' + video_input +
-        '" -vf "fps=fps=' + str(fps_denominator) + '/' + str(fps_numerator) + ',scale=' + filter_res + hdr_to_sdr + ',' + pix_convert + '" -color_primaries 1 -color_trc 1 -colorspace 1 -color_range 1 ' +
-        '-c:v libx265 -preset medium ' +
-        '-b:v ' + pass2_bitrate + ' -maxrate ' + pass2_maxrate + ' -bufsize ' + pass2_bufsize + ' ' +
-        '-x265-params "no-info=1:aq-mode=1:level-idc=' + pass2_level + ':keyint=' + str(round(keyint)) + ':min-keyint=' + str(round(keyint)) + ':no-scenecut=1:pass=2:stats=' + res + '-hevc-2pass.log" ' +
-        ' -map_metadata -1 -an ' + res + '-hevc-pass2.mp4 ')
+               '" -vf "fps=fps=' + str(fps_denominator) + '/' + str(
+                fps_numerator) + ',scale=' + filter_res + hdr_to_sdr + ',' + pix_convert + '" -color_primaries 1 -color_trc 1 -colorspace 1 -color_range 1 ' +
+               '-c:v libx265 -preset medium ' +
+               '-b:v ' + pass2_bitrate + ' -maxrate ' + pass2_maxrate + ' -bufsize ' + pass2_bufsize + ' ' +
+               '-x265-params "no-info=1:aq-mode=1:level-idc=' + pass2_level + ':keyint=' + str(
+                round(keyint)) + ':min-keyint=' + str(
+                round(keyint)) + ':no-scenecut=1:pass=2:stats=' + res + '-hevc-2pass.log" ' +
+               ' -map_metadata -1 -an ' + res + '-hevc-pass2.mp4 ')
 
     print(enc_cmd)
     subprocess.call(enc_cmd, shell=True)
 
     if os.path.exists(res + "-hevc-2pass.log"):
         os.remove(res + "-hevc-2pass.log")
-    if os.path.exists( res + "-hevc-2pass.log.cutree"):
+    if os.path.exists(res + "-hevc-2pass.log.cutree"):
         os.remove(res + "-hevc-2pass.log.cutree")
-

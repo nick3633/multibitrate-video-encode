@@ -1,9 +1,8 @@
 from xml.dom import minidom
-from encode import *
 from encode_lq import *
 
-def video_processor_lq(video_input: str):
 
+def video_processor_lq(video_input: str):
     hdr = 'SDR'
     if not (os.path.exists(video_input + ".xml")):
         subprocess.call(
@@ -31,7 +30,7 @@ def video_processor_lq(video_input: str):
         pix_convert = 'format=yuv420p'
     else:
         pix_convert = 'format=rgb48le,format=rgb24,format=yuv420p'
-		
+
     print(pix_convert)
 
     fps = input_fps.split('/')
@@ -75,7 +74,6 @@ def video_processor_lq(video_input: str):
 
     if input_width >= 3840 or input_height >= 2160:
         hevc_enc(video_input, '2160p', fps_denominator_low, fps_numerator, r, pix_convert, hdr)
-
 
     avc_enc(video_input, '240p', fps_denominator_low, fps_numerator, r, pix_convert, hdr)
     hevc_enc(video_input, '240p', fps_denominator_low, fps_numerator, r, pix_convert, hdr)
