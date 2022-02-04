@@ -91,7 +91,7 @@ def encode(quality, video_media_info=None):
             ' --pass 1 --slow-firstpass' +
             ' --crf 20 --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
             ' --preset slower --profile high --level ' + encode_level +
-            ' --aq-mode 3 --aq-strength 1 --no-mbtree --no-fast-pskip --no-dct-decimate --nr 200' +
+            ' --aq-mode 3 --aq-strength 1 --no-mbtree --no-fast-pskip --no-dct-decimate' +
             ' --sar 1:1 --stats ' + out_state + ' --output "' + out_avc_raw + '" -',
 
             'mp4box -add "' + out_avc_raw + '" -new "' + out_mp4 + '"'
@@ -104,7 +104,7 @@ def encode(quality, video_media_info=None):
             ' --crf 20 --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
             ' --preset slow --profile main10 --level-idc ' + encode_level + ' --high-tier' +
             ' --repeat-headers --aud --hrd' +
-            ' --aq-mode 3 --aq-strength 1 --no-cutree --no-open-gop --no-sao --pmode --nr-inter 200' +
+            ' --aq-mode 3 --aq-strength 1 --no-cutree --no-open-gop --no-sao --pmode' +
             ' --sar 1:1 --no-info --stats ' + out_state + ' --output "' + out_hevc_raw + '" -',
 
             'mp4box -add "' + out_hevc_raw + '" -new "' + out_mp4 + '"'
@@ -135,7 +135,7 @@ def encode(quality, video_media_info=None):
             ' --pass 2 --slow-firstpass' +
             ' --bitrate ' + bitrate + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
             ' --preset slower --profile high --level ' + encode_level +
-            ' --aq-mode 3 --aq-strength 1 --no-mbtree --no-fast-pskip --no-dct-decimate --nr 200' +
+            ' --aq-mode 3 --aq-strength 1 --no-mbtree --no-fast-pskip --no-dct-decimate' +
             ' --sar 1:1 --stats ' + out_state + ' --output "' + out_avc_raw + '" -',
         ]
     elif codec == 'hevc':
@@ -146,7 +146,7 @@ def encode(quality, video_media_info=None):
             ' --bitrate ' + bitrate + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
             ' --preset slow --profile main10 --level-idc ' + encode_level + ' --high-tier' +
             ' --repeat-headers --aud --hrd' +
-            ' --aq-mode 3 --aq-strength 1 --no-cutree --no-open-gop --no-sao --pmode --nr-inter 200' +
+            ' --aq-mode 3 --aq-strength 1 --no-cutree --no-open-gop --no-sao --pmode' +
             ' --sar 1:1 --no-info --stats ' + out_state + ' --output "' + out_hevc_raw + '" -',
         ]
     else:
