@@ -1,5 +1,7 @@
 # multibitrate-video-encode
-Encode video to h264 and h265.
+Encode video to h264 and h265.\
+Output resolution includes 2160p, 1080p and 480p\
+Supports SDR and HDR10 video
 
 ## Input
 Recommend resolution:
@@ -7,11 +9,12 @@ Recommend resolution:
  - 3840 x 2160 (Ultra HD)
  - 4096 x 2160 (DCI 4K)
 
-FPS should be less than or equal to 30.
+FPS should be less than or equal to 30.\
+Crop value can be set to the input video.\
+The container of the input video should be Quicktime (.mov).\
+The number of frames, FPS, resolution must be the same for both HDR and SDR version of the input video.\
+Input files should be placed in the same directory with metadata.json.
 
-Crop value can be set to the input video.
-
-The container of the input video should be Quicktime (.mov).
 
 ## metadata.json Examples
 ### SDR
@@ -44,7 +47,7 @@ The container of the input video should be Quicktime (.mov).
 	},
 	{
 		"role": "video_hdr",
-		"path": "Cosmos_Laundromat_HD_HDR_ProRes_4444HQ.mov",
+		"path": "Cosmos_Laundromat_HD_HDR_ProRes_4444.mov",
 		"crop": {
 			"top": 138,
 			"bottom": 138,
@@ -90,7 +93,7 @@ The container of the input video should be Quicktime (.mov).
 	},
 	{
 		"role": "video_hdr",
-		"path": "Cosmos_Laundromat_HD_HDR_ProRes_4444HQ.mov",
+		"path": "Cosmos_Laundromat_HD_HDR_ProRes_4444.mov",
 		"crop": {
 			"top": 138,
 			"bottom": 138,
@@ -106,7 +109,7 @@ The container of the input video should be Quicktime (.mov).
 	}
 ]
 ``````
-Dolby Vision metadata example: http://download.opencontent.netflix.com.s3.amazonaws.com/TechblogAssets/CosmosLaundromat/cosmos_laundromat_vdm_hdr_p3d65_pq_20160525_01_2048x858/vdm/hdr/p3d65_pq/20160525_01/metadata/cosmos_laundromat_vdm_hdr_p3d65_pq_20160525_01_2048x858_dovi_4000nit_metadata.xml\
+Dolby Vision metadata example: http://download.opencontent.netflix.com.s3.amazonaws.com/TechblogAssets/CosmosLaundromat/cosmos_laundromat_vdm_hdr_p3d65_pq_20160525_01_2048x858/vdm/hdr/p3d65_pq/20160525_01/metadata/cosmos_laundromat_vdm_hdr_p3d65_pq_20160525_01_2048x858_dovi_4000nit_metadata.xml \
 Dolby Vision HDR encode is **_not_** supported
 
 ## Command line tools required
@@ -116,5 +119,9 @@ Dolby Vision HDR encode is **_not_** supported
 - x265
 - mediainfo
 
-## Others
-HDR10 video encoding may be added in the future
+## run the program
+``````
+sys.path.insert(1, '{directory of this repository}')
+import main
+main.main('{directory of the metadata.json}')
+``````

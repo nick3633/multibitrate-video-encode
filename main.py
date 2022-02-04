@@ -57,7 +57,7 @@ def main(package_dir):
                     lmax=str(item['hdr']['hdr10']['mastering_display']['luminance_max']*10000),
                     lmin=str(item['hdr']['hdr10']['mastering_display']['luminance_min']*10000),
                 )
-                cll = '"{cll},{fall}"'.format(
+                cll = '{cll},{fall}'.format(
                     cll=str(item['hdr']['hdr10']['content_lightlevel']['max']),
                     fall=str(item['hdr']['hdr10']['content_lightlevel']['max_frame_avg']),
                 )
@@ -83,10 +83,10 @@ def main(package_dir):
                 'video_transfer_characteristics': video_mediainfo['video_transfer_characteristics'],
                 'video_matrix_coefficients': video_mediainfo['video_matrix_coefficients'],
             }
-            '''if video_info['video_cropped_width'] >= 3840 or video_info['video_cropped_height'] >= 2160:
+            if video_info['video_cropped_width'] >= 3840 or video_info['video_cropped_height'] >= 2160:
                 encode_list['2160p.hevc.hdr'] = video_info
             elif video_info['video_cropped_width'] >= 1920 or video_info['video_cropped_height'] >= 1080:
-                encode_list['1080p.hevc.hdr'] = video_info'''
+                encode_list['1080p.hevc.hdr'] = video_info
 
     if ('2160p.hevc.hdr' in encode_list) and ('2160p.hevc' in encode_list):
         del encode_list['2160p.hevc']

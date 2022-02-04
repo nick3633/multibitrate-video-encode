@@ -23,7 +23,7 @@ def metadata(dovi_metadata):
         lmax=str(int(mastering_display.find('PeakBrightness').text) * 10000),
         lmin=str(int(mastering_display.find('MinimumBrightness').text) * 10000),
     )
-    cll = '"{cll},{fall}"'.format(
+    cll = '{cll},{fall}'.format(
         cll=root.find('Outputs/Output/Video/Track/Level6/MaxCLL').text,
         fall=root.find('Outputs/Output/Video/Track/Level6/MaxFALL').text,
     )
