@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/multibitrate-video-encode.iml" filepath="$PROJECT_DIR$/.idea/multibitrate-video-encode.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Encodes.iml" filepath="$PROJECT_DIR$/.idea/Encodes.iml" />
     </modules>
   </component>
 </project>
