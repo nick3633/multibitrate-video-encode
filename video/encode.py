@@ -61,7 +61,11 @@ def encode(quality, video_media_info=None):
                 video_media_info['video_transfer_characteristics'] == 'PQ' and
                 video_media_info['video_matrix_coefficients'] == 'BT.709'
         ):
-            zscale = ',format=gbrpf32le' + zscale + ':matrixin=709:transferin=smpte2084:primariesin=smpte432:matrix=2020_ncl:transfer=smpte2084:primaries=2020'
+            zscale = (
+                    zscale + ':matrixin=709:transferin=smpte2084:primariesin=smpte432' +
+                    ':matrix=2020_ncl:transfer=smpte2084:primaries=2020'
+            )
+
     cmd_base = (
             'ffmpeg -loglevel warning -i "' + video_path + '"' +
             ' -sws_flags bicubic+accurate_rnd+full_chroma_int+full_chroma_inp+bitexact -sws_dither none' +
@@ -90,16 +94,19 @@ def encode(quality, video_media_info=None):
     '''level and bitrate lemitation'''
     if int(codded_height) >= 2160:
         encode_level = '5.0'
+        hevc_maxrate = '100000'
     elif int(codded_height) >= 1080:
         encode_level = '4.0'
+        hevc_maxrate = '30000'
     else:
         encode_level = '3.1'
+        hevc_maxrate = '10000'
 
     ''' dynamic range and color space settings '''
     hdr_settings = ''
     if codec == 'avc':
         hdr_settings = ' --range tv --colorprim bt709 --transfer bt709 --colormatrix bt709'
-    if codec == 'hevc':
+    elif codec == 'hevc':
         hdr_settings = ' --range limited --colorprim bt709 --transfer bt709 --colormatrix bt709'
     if dr == 'hdr':
         hdr_settings = (
@@ -126,7 +133,7 @@ def encode(quality, video_media_info=None):
     elif codec == 'hevc':
         cmd = [
             cmd_base +
-            'x265 --log-level warning --frame-threads 4 --y4m' +
+            'x265 --log-level warning --frame-threads 2 --y4m' +
             ' --pass 1 --slow-firstpass' +
             ' --crf 20 --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
             ' --preset slow --profile main10 --level-idc ' + encode_level + ' --high-tier' +
@@ -152,8 +159,6 @@ def encode(quality, video_media_info=None):
     bitrate = str(round(pass1_bitrate * pass2_rate_fac / 1000))
     if os.path.exists(out_mp4):
         os.remove(out_mp4)
-    maxrate = str(round(pass1_target_rate * pass2_rate_fac * 1.5))
-    bufsize = str(round(pass1_target_rate * pass2_rate_fac * 2))
 
     '''pass 2'''
     if codec == 'avc':
@@ -161,24 +166,26 @@ def encode(quality, video_media_info=None):
             cmd_base +
             'x264 --log-level warning --threads 6 --demuxer y4m' +
             ' --pass 2 --slow-firstpass' +
-            ' --bitrate ' + bitrate + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
+            ' --bitrate ' + bitrate +
             ' --preset slower --profile high --level ' + encode_level +
             ' --aq-mode 3 --aq-strength 1 --no-mbtree --no-fast-pskip --no-dct-decimate' +
             hdr_settings +
             ' --sar 1:1 --stats ' + out_state + ' --output "' + out_avc_raw + '" -',
         ]
+        out_file = out_avc_raw
     elif codec == 'hevc':
         cmd = [
             cmd_base +
-            'x265 --log-level warning --frame-threads 4 --y4m' +
+            'x265 --log-level warning --frame-threads 2 --y4m' +
             ' --pass 2 --slow-firstpass' +
-            ' --bitrate ' + bitrate + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
+            ' --bitrate ' + bitrate + ' --vbv-maxrate ' + hevc_maxrate + ' --vbv-bufsize ' + hevc_maxrate +
             ' --preset slow --profile main10 --level-idc ' + encode_level + ' --high-tier' +
             ' --repeat-headers --aud --hrd' +
             ' --aq-mode 3 --aq-strength 1 --no-cutree --no-open-gop --no-sao --pmode' +
             hdr_settings +
             ' --sar 1:1 --no-info --stats ' + out_state + ' --output "' + out_hevc_raw + '" -',
         ]
+        out_file = out_hevc_raw
     else:
         raise RuntimeError
 
@@ -187,3 +194,5 @@ def encode(quality, video_media_info=None):
         subprocess.call(item, shell=True)
     if os.path.exists(out_state):
         os.remove(out_state)
+
+    return out_file

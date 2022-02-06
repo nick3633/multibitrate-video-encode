@@ -1,6 +1,6 @@
 import os
 import json
-import subprocess
+import concurrent.futures
 
 import video.dovi
 import video.encode
@@ -46,16 +46,16 @@ def main(package_dir):
             cll = ''
             if item['hdr']['format'] == 'hdr10':
                 master_display = 'G({gx},{gy})B({bx},{by})R({rx},{ry})WP({wpx},{wpy})L({lmax},{lmin})'.format(
-                    gx=str(item['hdr']['hdr10']['mastering_display']['green_x']*50000),
-                    gy=str(item['hdr']['hdr10']['mastering_display']['green_y']*50000),
-                    bx=str(item['hdr']['hdr10']['mastering_display']['blue_x']*50000),
-                    by=str(item['hdr']['hdr10']['mastering_display']['blue_y']*50000),
-                    rx=str(item['hdr']['hdr10']['mastering_display']['red_x']*50000),
-                    ry=str(item['hdr']['hdr10']['mastering_display']['red_y']*50000),
-                    wpx=str(item['hdr']['hdr10']['mastering_display']['white_point_x']*50000),
-                    wpy=str(item['hdr']['hdr10']['mastering_display']['white_point_y']*50000),
-                    lmax=str(item['hdr']['hdr10']['mastering_display']['luminance_max']*10000),
-                    lmin=str(item['hdr']['hdr10']['mastering_display']['luminance_min']*10000),
+                    gx=str(round(item['hdr']['hdr10']['mastering_display']['green_x']*50000)),
+                    gy=str(round(item['hdr']['hdr10']['mastering_display']['green_y']*50000)),
+                    bx=str(round(item['hdr']['hdr10']['mastering_display']['blue_x']*50000)),
+                    by=str(round(item['hdr']['hdr10']['mastering_display']['blue_y']*50000)),
+                    rx=str(round(item['hdr']['hdr10']['mastering_display']['red_x']*50000)),
+                    ry=str(round(item['hdr']['hdr10']['mastering_display']['red_y']*50000)),
+                    wpx=str(round(item['hdr']['hdr10']['mastering_display']['white_point_x']*50000)),
+                    wpy=str(round(item['hdr']['hdr10']['mastering_display']['white_point_y']*50000)),
+                    lmax=str(round(item['hdr']['hdr10']['mastering_display']['luminance_max']*10000)),
+                    lmin=str(round(item['hdr']['hdr10']['mastering_display']['luminance_min']*10000)),
                 )
                 cll = '{cll},{fall}'.format(
                     cll=str(item['hdr']['hdr10']['content_lightlevel']['max']),
@@ -93,7 +93,11 @@ def main(package_dir):
     if ('1080p.hevc.hdr' in encode_list) and ('1080p.hevc' in encode_list):
         del encode_list['1080p.hevc']
 
-    for key in encode_list:
-        dict_txt = json.dumps(encode_list[key], indent=2)
-        print('"' + key + '": ' + dict_txt)
-        video.encode.encode(key, video_media_info=encode_list[key])
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+        futures = []
+        for key in encode_list:
+            dict_txt = json.dumps(encode_list[key], indent=2)
+            print('"' + key + '": ' + dict_txt)
+            futures.append(executor.submit(video.encode.encode, key, video_media_info=encode_list[key]))
+        for item in concurrent.futures.as_completed(futures):
+            print(item)
