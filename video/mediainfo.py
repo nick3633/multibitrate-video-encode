@@ -21,9 +21,9 @@ def info(video_path, video_metadata, dr):
         video_transfer_characteristics = mediainfo['media']['track'][1]['transfer_characteristics']
         video_matrix_coefficients = mediainfo['media']['track'][1]['matrix_coefficients']
     else:
-        video_colour_primaries = mediainfo['media']['track'][1]['colour_primaries']
+        video_colour_primaries = ''
         video_transfer_characteristics = ''
-        video_matrix_coefficients = mediainfo['media']['track'][1]['matrix_coefficients']
+        video_matrix_coefficients = ''
 
     return {
         'video_width': video_width,
@@ -34,4 +34,3 @@ def info(video_path, video_metadata, dr):
         'video_transfer_characteristics': video_transfer_characteristics,
         'video_matrix_coefficients': video_matrix_coefficients,
     }
-

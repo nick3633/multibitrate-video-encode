@@ -35,9 +35,9 @@ def main(package_dir):
                 encode_list['2160p.hevc'] = video_info
             if video_info['video_cropped_width'] >= 1920 or video_info['video_cropped_height'] >= 1080:
                 encode_list['1080p.avc'] = video_info
-                encode_list['1080p.hevc'] = video_info
-            encode_list['480p.avc'] = video_info
-            encode_list['480p.hevc'] = video_info
+                # encode_list['1080p.hevc'] = video_info
+            # encode_list['480p.avc'] = video_info
+            # encode_list['480p.hevc'] = video_info
 
         elif item['role'] == 'video_hdr':
             video_path = os.path.join(package_dir, item['path'])
@@ -85,7 +85,7 @@ def main(package_dir):
             }
             if video_info['video_cropped_width'] >= 3840 or video_info['video_cropped_height'] >= 2160:
                 encode_list['2160p.hevc.hdr'] = video_info
-            elif video_info['video_cropped_width'] >= 1920 or video_info['video_cropped_height'] >= 1080:
+            if video_info['video_cropped_width'] >= 1920 or video_info['video_cropped_height'] >= 1080:
                 encode_list['1080p.hevc.hdr'] = video_info
 
     if ('2160p.hevc.hdr' in encode_list) and ('2160p.hevc' in encode_list):
@@ -93,7 +93,7 @@ def main(package_dir):
     if ('1080p.hevc.hdr' in encode_list) and ('1080p.hevc' in encode_list):
         del encode_list['1080p.hevc']
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
         futures = []
         for key in encode_list:
             dict_txt = json.dumps(encode_list[key], indent=2)

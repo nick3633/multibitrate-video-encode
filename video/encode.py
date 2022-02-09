@@ -94,13 +94,10 @@ def encode(quality, video_media_info=None):
     '''level and bitrate lemitation'''
     if int(codded_height) >= 2160:
         encode_level = '5.0'
-        hevc_maxrate = '100000'
     elif int(codded_height) >= 1080:
         encode_level = '4.0'
-        hevc_maxrate = '30000'
     else:
         encode_level = '3.1'
-        hevc_maxrate = '10000'
 
     ''' dynamic range and color space settings '''
     hdr_settings = ''
@@ -120,11 +117,11 @@ def encode(quality, video_media_info=None):
     if codec == 'avc':
         cmd = [
             cmd_base +
-            'x264 --log-level warning --threads 6 --demuxer y4m' +
-            ' --pass 1 --slow-firstpass' +
+            'x264 --log-level warning --demuxer y4m' +
+            ' --pass 1' +
             ' --crf 20 --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
-            ' --preset slower --profile high --level ' + encode_level +
-            ' --aq-mode 3 --aq-strength 1 --no-mbtree --no-fast-pskip --no-dct-decimate' +
+            ' --preset slower --profile main --level ' + encode_level +
+            ' --no-mbtree --no-fast-pskip --no-dct-decimate --keyint 50 --rc-lookahead 50' +
             hdr_settings +
             ' --sar 1:1 --stats ' + out_state + ' --output "' + out_avc_raw + '" -',
 
@@ -133,12 +130,12 @@ def encode(quality, video_media_info=None):
     elif codec == 'hevc':
         cmd = [
             cmd_base +
-            'x265 --log-level warning --frame-threads 2 --y4m' +
-            ' --pass 1 --slow-firstpass' +
+            'x265 --log-level warning --y4m' +
+            ' --pass 1 --no-slow-firstpass' +
             ' --crf 20 --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
             ' --preset slow --profile main10 --level-idc ' + encode_level + ' --high-tier' +
             ' --repeat-headers --aud --hrd' +
-            ' --aq-mode 3 --aq-strength 1 --no-cutree --no-open-gop --no-sao --pmode' +
+            ' --aq-mode 4 --no-cutree --no-open-gop --no-sao --pmode --keyint 50 --rc-lookahead 50' +
             hdr_settings +
             ' --sar 1:1 --no-info --stats ' + out_state + ' --output "' + out_hevc_raw + '" -',
 
@@ -157,6 +154,8 @@ def encode(quality, video_media_info=None):
         ' -of "default=noprint_wrappers=1:nokey=1" "' + out_mp4 + '"',
         shell=True))
     bitrate = str(round(pass1_bitrate * pass2_rate_fac / 1000))
+    maxrate = str(round(pass1_target_rate * pass2_rate_fac * 1.5))
+    bufsize = str(round(pass1_target_rate * pass2_rate_fac * 2))
     if os.path.exists(out_mp4):
         os.remove(out_mp4)
 
@@ -164,11 +163,20 @@ def encode(quality, video_media_info=None):
     if codec == 'avc':
         cmd = [
             cmd_base +
-            'x264 --log-level warning --threads 6 --demuxer y4m' +
-            ' --pass 2 --slow-firstpass' +
-            ' --bitrate ' + bitrate +
-            ' --preset slower --profile high --level ' + encode_level +
-            ' --aq-mode 3 --aq-strength 1 --no-mbtree --no-fast-pskip --no-dct-decimate' +
+            'x264 --log-level warning --demuxer y4m' +
+            ' --pass 1' +
+            ' --bitrate ' + bitrate + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
+            ' --preset slower --profile main --level ' + encode_level +
+            ' --no-mbtree --no-fast-pskip --no-dct-decimate --keyint 50 --rc-lookahead 50' +
+            hdr_settings +
+            ' --sar 1:1 --stats ' + out_state + ' --output "' + out_avc_raw + '" -',
+
+            cmd_base +
+            'x264 --log-level warning --demuxer y4m' +
+            ' --pass 2' +
+            ' --bitrate ' + bitrate + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
+            ' --preset slower --profile main --level ' + encode_level +
+            ' --no-mbtree --no-fast-pskip --no-dct-decimate --keyint 50 --rc-lookahead 50' +
             hdr_settings +
             ' --sar 1:1 --stats ' + out_state + ' --output "' + out_avc_raw + '" -',
         ]
@@ -176,12 +184,22 @@ def encode(quality, video_media_info=None):
     elif codec == 'hevc':
         cmd = [
             cmd_base +
-            'x265 --log-level warning --frame-threads 2 --y4m' +
-            ' --pass 2 --slow-firstpass' +
-            ' --bitrate ' + bitrate + ' --vbv-maxrate ' + hevc_maxrate + ' --vbv-bufsize ' + hevc_maxrate +
+            'x265 --log-level warning --y4m' +
+            ' --pass 1' +
+            ' --bitrate ' + bitrate + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
             ' --preset slow --profile main10 --level-idc ' + encode_level + ' --high-tier' +
             ' --repeat-headers --aud --hrd' +
-            ' --aq-mode 3 --aq-strength 1 --no-cutree --no-open-gop --no-sao --pmode' +
+            ' --aq-mode 4 --no-cutree --no-open-gop --no-sao --pmode --keyint 50 --rc-lookahead 50' +
+            hdr_settings +
+            ' --sar 1:1 --no-info --stats ' + out_state + ' --output "' + out_hevc_raw + '" -',
+
+            cmd_base +
+            'x265 --log-level warning --y4m' +
+            ' --pass 2' +
+            ' --bitrate ' + bitrate + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
+            ' --preset slow --profile main10 --level-idc ' + encode_level + ' --high-tier' +
+            ' --repeat-headers --aud --hrd' +
+            ' --aq-mode 4 --no-cutree --no-open-gop --no-sao --pmode --keyint 50 --rc-lookahead 50' +
             hdr_settings +
             ' --sar 1:1 --no-info --stats ' + out_state + ' --output "' + out_hevc_raw + '" -',
         ]
