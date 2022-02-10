@@ -5,6 +5,8 @@ import concurrent.futures
 import video.dovi
 import video.encode
 import video.mediainfo
+import video.scenecut
+import video.concat
 
 
 # package_dir = sys.argv[1]
@@ -14,6 +16,7 @@ def main(package_dir):
         package_file.close()
 
     encode_list = {}
+    video_info = {}
     for item in package:
         if item['role'] == 'video':
             video_path = os.path.join(package_dir, item['path'])
@@ -25,6 +28,8 @@ def main(package_dir):
                 'video_crop_bottom': item['crop']['bottom'],
                 'video_crop_left': item['crop']['left'],
                 'video_crop_right': item['crop']['right'],
+                'video_fps': video_mediainfo['video_fps'],
+                'video_frame_count': video_mediainfo['video_frame_count'],
                 'video_width': video_mediainfo['video_width'],
                 'video_height': video_mediainfo['video_height'],
                 'video_cropped_width': video_mediainfo['video_cropped_width'],
@@ -67,12 +72,14 @@ def main(package_dir):
                 master_display = hdr10_metadata['master_display']
                 cll = hdr10_metadata['cll']
 
-            video_info = {
+            video_info_hdr = {
                 'video_path': video_path,
                 'video_crop_top': item['crop']['top'],
                 'video_crop_bottom': item['crop']['bottom'],
                 'video_crop_left': item['crop']['left'],
                 'video_crop_right': item['crop']['right'],
+                'video_fps': video_mediainfo['video_fps'],
+                'video_frame_count': video_mediainfo['video_frame_count'],
                 'video_width': video_mediainfo['video_width'],
                 'video_height': video_mediainfo['video_height'],
                 'video_cropped_width': video_mediainfo['video_cropped_width'],
@@ -83,21 +90,18 @@ def main(package_dir):
                 'video_transfer_characteristics': video_mediainfo['video_transfer_characteristics'],
                 'video_matrix_coefficients': video_mediainfo['video_matrix_coefficients'],
             }
-            if video_info['video_cropped_width'] >= 3840 or video_info['video_cropped_height'] >= 2160:
-                encode_list['2160p.hevc.hdr'] = video_info
-            if video_info['video_cropped_width'] >= 1920 or video_info['video_cropped_height'] >= 1080:
-                encode_list['1080p.hevc.hdr'] = video_info
+            if video_info_hdr['video_cropped_width'] >= 3840 or video_info_hdr['video_cropped_height'] >= 2160:
+                encode_list['2160p.hevc.hdr'] = video_info_hdr
+            if video_info_hdr['video_cropped_width'] >= 1920 or video_info_hdr['video_cropped_height'] >= 1080:
+                encode_list['1080p.hevc.hdr'] = video_info_hdr
 
     if ('2160p.hevc.hdr' in encode_list) and ('2160p.hevc' in encode_list):
         del encode_list['2160p.hevc']
     if ('1080p.hevc.hdr' in encode_list) and ('1080p.hevc' in encode_list):
         del encode_list['1080p.hevc']
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-        futures = []
-        for key in encode_list:
-            dict_txt = json.dumps(encode_list[key], indent=2)
-            print('"' + key + '": ' + dict_txt)
-            futures.append(executor.submit(video.encode.encode, key, video_media_info=encode_list[key]))
-        for item in concurrent.futures.as_completed(futures):
-            print(item)
+    segment_list = video.scenecut.scenecut_list(video_info)
+
+    for key in encode_list:
+        '''video.encode.encode(key, video_media_info=encode_list[key])'''
+        video.concat.concat(key, video_media_info=encode_list[key], segment_list=segment_list)

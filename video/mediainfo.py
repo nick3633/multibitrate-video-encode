@@ -11,6 +11,21 @@ def info(video_path, video_metadata, dr):
     if os.path.exists('mediainfo.json'):
         os.remove('mediainfo.json')
 
+    cmd = (
+            'ffprobe -v error -select_streams V:0 -of json -show_entries stream ' +
+            '"' + video_path + '" > mediainfo_ffprobe.json'
+    )
+
+    subprocess.call(cmd, shell=True)
+    with open('mediainfo_ffprobe.json', 'r') as mediainfo_ffprobe_file:
+        mediainfo_ffprobe = json.loads(mediainfo_ffprobe_file.read())
+        mediainfo_ffprobe_file.close()
+    if os.path.exists('mediainfo_ffprobe.json'):
+        os.remove('mediainfo_ffprobe.json')
+
+    video_fps = mediainfo_ffprobe['streams'][0]['r_frame_rate']
+    print(video_fps)
+    video_frame_count = int(mediainfo['media']['track'][1]['FrameCount'])
     video_width = int(mediainfo['media']['track'][1]['Width'])
     video_height = int(mediainfo['media']['track'][1]['Height'])
     video_cropped_width = video_width - video_metadata['crop']['left'] - video_metadata['crop']['right']
@@ -26,6 +41,8 @@ def info(video_path, video_metadata, dr):
         video_matrix_coefficients = ''
 
     return {
+        'video_fps': video_fps,
+        'video_frame_count': video_frame_count,
         'video_width': video_width,
         'video_height': video_height,
         'video_cropped_width': video_cropped_width,
