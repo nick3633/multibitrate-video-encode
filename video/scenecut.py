@@ -77,9 +77,8 @@ def scenecut_list(video_info):
     scenecut_start_frame = sorted(list(dict.fromkeys(scenecut_start_frame)))
 
     restart = True
-    while restart == True:
+    while restart is True:
         i = 0
-        i_total = len(scenecut_start_frame)
         for item in scenecut_start_frame:
             try:
                 if scenecut_start_frame[i + 1] - item < round(video_fps_float * 1):
@@ -109,24 +108,22 @@ def scenecut_list(video_info):
             duration = (video_frame_count - point)
 
         keyint = str(int(video_fps_float) * 6)
-        start_time_padding = start_time - int(keyint)
-        duration_padding = duration + (int(keyint) * 2)
-        total_segment = math.ceil(duration_padding / int(keyint))
+        start_time_padding = start_time - (int(video_fps_float) * 2)
+        duration_padding = duration + ((int(video_fps_float) * 2) * 2)
+        total_segment = math.ceil(duration / int(keyint)) + 2
         print(total_segment)
         extract_segment = []
         for i in range(total_segment):
             extract_segment.append(i)
         print(extract_segment)
-        # if start_time_padding > 0:
         extract_segment = extract_segment[1:]
-        # if duration_padding <= in_duration:
         extract_segment = extract_segment[:-1]
 
         segmant_list[str(n)] = {
-            'start_time': start_time,
-            'start_time_padding': start_time_padding,
-            'duration': duration,
-            'duration_padding': duration_padding,
+            'start_time': int(start_time),
+            'start_time_padding': int(start_time_padding),
+            'duration': int(duration),
+            'duration_padding': int(duration_padding),
             'extract_segment': extract_segment,
             'keyint': keyint,
         }

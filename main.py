@@ -1,6 +1,5 @@
 import os
 import json
-import concurrent.futures
 
 import video.dovi
 import video.encode
@@ -39,10 +38,8 @@ def main(package_dir):
             if video_info['video_cropped_width'] >= 3840 or video_info['video_cropped_height'] >= 2160:
                 encode_list['2160p.hevc'] = video_info
             if video_info['video_cropped_width'] >= 1920 or video_info['video_cropped_height'] >= 1080:
-                encode_list['1080p.avc'] = video_info
+                '''encode_list['1080p.avc'] = video_info'''
                 # encode_list['1080p.hevc'] = video_info
-            # encode_list['480p.avc'] = video_info
-            # encode_list['480p.hevc'] = video_info
 
         elif item['role'] == 'video_hdr':
             video_path = os.path.join(package_dir, item['path'])
@@ -92,7 +89,7 @@ def main(package_dir):
             }
             if video_info_hdr['video_cropped_width'] >= 3840 or video_info_hdr['video_cropped_height'] >= 2160:
                 encode_list['2160p.hevc.hdr'] = video_info_hdr
-            if video_info_hdr['video_cropped_width'] >= 1920 or video_info_hdr['video_cropped_height'] >= 1080:
+            elif video_info_hdr['video_cropped_width'] >= 1920 or video_info_hdr['video_cropped_height'] >= 1080:
                 encode_list['1080p.hevc.hdr'] = video_info_hdr
 
     if ('2160p.hevc.hdr' in encode_list) and ('2160p.hevc' in encode_list):
@@ -103,5 +100,4 @@ def main(package_dir):
     segment_list = video.scenecut.scenecut_list(video_info)
 
     for key in encode_list:
-        '''video.encode.encode(key, video_media_info=encode_list[key])'''
         video.concat.concat(key, video_media_info=encode_list[key], segment_list=segment_list)
