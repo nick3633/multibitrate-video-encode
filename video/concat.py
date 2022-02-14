@@ -69,7 +69,7 @@ def concat(key, video_media_info=None, segment_list=None):
 
     cmd_list = [
         'ffmpeg -f concat -safe 0 -i cat.txt -c copy ' + key + '.mp4',
-        'ffmpeg -i ' + key + '.mp4 -bsf:v h264_mp4toannexb -c:v copy ' + key + '.' + ext,
+        'ffmpeg -i ' + key + '.mp4 -bsf:v ' + bsf + ' -c:v copy ' + key + '.' + ext,
     ]
     if not os.path.exists(key + '.' + ext):
         for cmd in cmd_list:

@@ -83,7 +83,7 @@ def encode(
     qpfile.close()
 
     '''build cmd base'''
-    zscale = ',zscale=' + res_settings + ':filter=bicubic'
+    zscale = ',zscale=' + res_settings + ':filter=spline36'
     if dr == 'hdr':
         if (
                 video_media_info['video_colour_primaries'] == 'BT.2020' and
@@ -115,7 +115,6 @@ def encode(
             'ffmpeg -loglevel warning' +
             ' -ss ' + str(start_time_padding / video_fps_float) + ' -t ' + str(duration_padding / video_fps_float) +
             ' -i "' + video_path + '"' +
-            ' -sws_flags bicubic+accurate_rnd+full_chroma_int+full_chroma_inp+bitexact -sws_dither none' +
             ' -vf "crop=' + crop_settings + zscale + tpad + '"' +
             ' -pix_fmt ' + pix_fmt + ' -strict -1 -f yuv4mpegpipe -y - | '
     )
@@ -155,7 +154,7 @@ def encode(
                 cmd_base +
                 'x264 --log-level warning --demuxer y4m' +
                 ' --crf ' + crf +
-                ' --preset slower --profile main --level ' + encode_level +
+                ' --preset slower --profile high --level ' + encode_level +
                 ' --no-mbtree --no-fast-pskip --no-dct-decimate' +
                 ' --keyint ' + keyint + ' --min-keyint 1 --scenecut 0' +
                 hdr_settings +
@@ -168,7 +167,7 @@ def encode(
                 ' --crf ' + crf +
                 ' --preset slow --profile main10 --level-idc ' + encode_level + ' --high-tier' +
                 ' --repeat-headers --aud --hrd' +
-                ' --aq-mode 4 --no-cutree --no-open-gop --no-sao --pmode' +
+                ' --no-cutree --no-open-gop --no-sao --pmode --aq-mode 4' +
                 ' --keyint ' + keyint + ' --min-keyint 1 --scenecut 0' +
                 hdr_settings +
                 ' --sar 1:1 --no-info --stats ' + out_state + ' --qpfile "' + qpfile_path + '"' +

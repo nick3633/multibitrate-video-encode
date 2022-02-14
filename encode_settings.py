@@ -51,5 +51,33 @@ encode_settings = {
             "encode_level": "4.0",
             "crf": "19",
         }
+    },
+    "audio_ladder": {
+        "atmos.eac3": {
+            "codec": "eac3",
+            "channel": "object_based",
+        },
+
+        "5_1.eac3": {
+            "codec": "eac3",
+            "channel": "5_1",
+        },
+        "5_1.ac3": {
+            "codec": "ac3",
+            "channel": "5_1",
+        },
+
+        "2_0.eac3": {
+            "codec": "eac3",
+            "channel": "2_0",
+        },
+        "2_0.ac3": {
+            "codec": "ac3",
+            "channel": "2_0",
+        },
+        "2_0.aac": {
+            "codec": "aac",
+            "channel": "2_0",
+        }
     }
 }

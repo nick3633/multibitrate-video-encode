@@ -6,6 +6,7 @@ import video.encode
 import video.mediainfo
 import video.scenecut
 import video.concat
+import audio.mediainfo
 
 
 # package_dir = sys.argv[1]
@@ -14,7 +15,8 @@ def main(package_dir):
         package = json.loads(package_file.read())
         package_file.close()
 
-    encode_list = {}
+    video_encode_list = {}
+    audio_encode_list = {}
     video_info = {}
     for item in package:
         if item['role'] == 'video':
@@ -23,6 +25,7 @@ def main(package_dir):
 
             video_info = {
                 'video_path': video_path,
+                'video_lang': item['language'],
                 'video_crop_top': item['crop']['top'],
                 'video_crop_bottom': item['crop']['bottom'],
                 'video_crop_left': item['crop']['left'],
@@ -36,10 +39,26 @@ def main(package_dir):
             }
 
             if video_info['video_cropped_width'] >= 3840 or video_info['video_cropped_height'] >= 2160:
-                encode_list['2160p.hevc'] = video_info
+                video_encode_list['2160p.hevc'] = video_info
             if video_info['video_cropped_width'] >= 1920 or video_info['video_cropped_height'] >= 1080:
-                '''encode_list['1080p.avc'] = video_info'''
-                # encode_list['1080p.hevc'] = video_info
+                video_encode_list['1080p.avc'] = video_info
+
+            if ('ignore_audio' in item and 'ignore_audio' == False) or ('ignore_audio' not in item):
+                audio_mediainfo = audio.mediainfo.info(video_path)
+
+                audio_info = {
+                    'audio_path': video_path,
+                    'audio_lang': item['language'],
+                    'audio_tracks': audio_mediainfo
+                }
+
+                if '5_1' in audio_mediainfo:
+                    audio_encode_list['5_1.eac3'] = audio_info
+                    audio_encode_list['5_1.ac3'] = audio_info
+                if '2_0' in audio_mediainfo:
+                    audio_encode_list['2_0.eac3'] = audio_info
+                    audio_encode_list['2_0.ac3'] = audio_info
+                    audio_encode_list['2_0.aac'] = audio_info
 
         elif item['role'] == 'video_hdr':
             video_path = os.path.join(package_dir, item['path'])
@@ -71,6 +90,7 @@ def main(package_dir):
 
             video_info_hdr = {
                 'video_path': video_path,
+                'video_lang': item['language'],
                 'video_crop_top': item['crop']['top'],
                 'video_crop_bottom': item['crop']['bottom'],
                 'video_crop_left': item['crop']['left'],
@@ -88,16 +108,42 @@ def main(package_dir):
                 'video_matrix_coefficients': video_mediainfo['video_matrix_coefficients'],
             }
             if video_info_hdr['video_cropped_width'] >= 3840 or video_info_hdr['video_cropped_height'] >= 2160:
-                encode_list['2160p.hevc.hdr'] = video_info_hdr
+                video_encode_list['2160p.hevc.hdr'] = video_info_hdr
             elif video_info_hdr['video_cropped_width'] >= 1920 or video_info_hdr['video_cropped_height'] >= 1080:
-                encode_list['1080p.hevc.hdr'] = video_info_hdr
+                video_encode_list['1080p.hevc.hdr'] = video_info_hdr
 
-    if ('2160p.hevc.hdr' in encode_list) and ('2160p.hevc' in encode_list):
-        del encode_list['2160p.hevc']
-    if ('1080p.hevc.hdr' in encode_list) and ('1080p.hevc' in encode_list):
-        del encode_list['1080p.hevc']
+        elif item['role'] == 'audio' and item['primary_audio'] is True:
+            mov_path = os.path.join(package_dir, item['path'])
+            audio_mediainfo = audio.mediainfo.info(mov_path)
+
+            audio_info = {
+                'audio_path': mov_path,
+                'audio_lang': item['language'],
+                'audio_tracks': audio_mediainfo
+            }
+
+            if '5_1' in audio_mediainfo:
+                audio_encode_list['5_1.eac3'] = audio_info
+                audio_encode_list['5_1.ac3'] = audio_info
+            if '2_0' in audio_mediainfo:
+                audio_encode_list['2_0.eac3'] = audio_info
+                audio_encode_list['2_0.ac3'] = audio_info
+                audio_encode_list['2_0.aac'] = audio_info
+
+    if ('2160p.hevc.hdr' in video_encode_list) and ('2160p.hevc' in video_encode_list):
+        del video_encode_list['2160p.hevc']
+    if ('1080p.hevc.hdr' in video_encode_list) and ('1080p.hevc' in video_encode_list):
+        del video_encode_list['1080p.hevc']
+
+    if ('5_1.eac3' in audio_encode_list) and ('2_0.eac3' in audio_encode_list):
+        del audio_encode_list['2_0.eac3']
+    if ('5_1.ac3' in audio_encode_list) and ('2_0.ac3' in audio_encode_list):
+        del audio_encode_list['2_0.ac3']
 
     segment_list = video.scenecut.scenecut_list(video_info)
 
-    for key in encode_list:
-        video.concat.concat(key, video_media_info=encode_list[key], segment_list=segment_list)
+    '''for key in video_encode_list:
+        video.concat.concat(key, video_media_info=video_encode_list[key], segment_list=segment_list)'''
+
+    for key in audio_encode_list:
+        print(key + ': ' + json.dumps(audio_encode_list[key], indent=2))

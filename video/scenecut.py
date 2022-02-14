@@ -107,9 +107,9 @@ def scenecut_list(video_info):
         except IndexError:
             duration = (video_frame_count - point)
 
-        keyint = str(int(video_fps_float) * 6)
-        start_time_padding = start_time - (int(video_fps_float) * 2)
-        duration_padding = duration + ((int(video_fps_float) * 2) * 2)
+        keyint = '250'
+        start_time_padding = start_time - 50
+        duration_padding = duration + (50 * 2)
         total_segment = math.ceil(duration / int(keyint)) + 2
         print(total_segment)
         extract_segment = []

@@ -17,11 +17,12 @@ Input files should be placed in the same directory with metadata.json.
 
 
 ## metadata.json Examples
-### SDR
+### SDR without embedded audio
 ``````
 [
 	{
 		"role": "video",
+		"language": "en",
 		"path": "ED_HD_PRORES_422HQ.mov",
 		"crop": {
 			"top": 0,
@@ -29,14 +30,21 @@ Input files should be placed in the same directory with metadata.json.
 			"left": 0,
 			"right": 0
 		}
+	},
+	{
+	    "role": "audio",
+		"language": "en",
+	    "path": "ED_Audio.mov",
+	    "primary_audio": true
 	}
 ]
 ``````
-### HDR 10
+### HDR 10 with embedded audio
 ``````
 [
 	{
 		"role": "video",
+		"language": "en",
 		"path": "Cosmos_Laundromat_HD_SDR_ProRes_422HQ.mov",
 		"crop": {
 			"top": 138,
@@ -47,6 +55,7 @@ Input files should be placed in the same directory with metadata.json.
 	},
 	{
 		"role": "video_hdr",
+		"language": "en",
 		"path": "Cosmos_Laundromat_HD_HDR_ProRes_4444.mov",
 		"crop": {
 			"top": 138,
@@ -78,21 +87,24 @@ Input files should be placed in the same directory with metadata.json.
 	}
 ]
 ``````
-### Dolby Vision HDR
-``````
+### Dolby Vision HDR with embedded audio and alternative audio file provided as primary audio
+```
 [
 	{
 		"role": "video",
+		"language": "en",
 		"path": "Cosmos_Laundromat_HD_SDR_ProRes_422HQ.mov",
 		"crop": {
 			"top": 138,
 			"bottom": 138,
 			"left": 0,
 			"right": 0
-		}
+		},
+		"ignore_audio": true
 	},
 	{
 		"role": "video_hdr",
+		"language": "en",
 		"path": "Cosmos_Laundromat_HD_HDR_ProRes_4444.mov",
 		"crop": {
 			"top": 138,
@@ -106,18 +118,27 @@ Input files should be placed in the same directory with metadata.json.
 				"metadata": "Cosmos_Laundromat_Mapping.xml"
 			}
 		}
+	},
+	{
+	    "role": "audio",
+        "language": "en",
+	    "path": "Cosmos_Laundromat_Audio.mov",
+	    "primary_audio": true
 	}
 ]
-``````
+```
+
 Dolby Vision metadata example: http://download.opencontent.netflix.com.s3.amazonaws.com/TechblogAssets/CosmosLaundromat/cosmos_laundromat_vdm_hdr_p3d65_pq_20160525_01_2048x858/vdm/hdr/p3d65_pq/20160525_01/metadata/cosmos_laundromat_vdm_hdr_p3d65_pq_20160525_01_2048x858_dovi_4000nit_metadata.xml \
 Dolby Vision HDR encode is **_not_** supported
 
 ## Command line tools required
 - python
 - ffmpeg
+- ffprobe
 - x264
 - x265
 - mediainfo
+- mp4box
 
 ## run the program
 ``````
