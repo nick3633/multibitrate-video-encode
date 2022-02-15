@@ -30,7 +30,6 @@ def concat(key, video_media_info=None, segment_list=None):
                 keyint=segment_list[seg_num]['keyint'],
             ))
         for out_file in concurrent.futures.as_completed(futures):
-            print(out_file)
             out_file = out_file.result()
             result_list[out_file['segmant_num']] = out_file
 

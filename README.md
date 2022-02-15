@@ -1,9 +1,18 @@
-# multibitrate-video-encode
-Encode video to h264 and h265.\
-Output resolution includes 2160p, 1080p and 480p\
+# multibitrate-video-encode (automator)
+This programme can automatic generate and run command-line programme to simplify the process of video and audio encoding.\
+This programme will split the video to multiple parts when encoding and then recombine the encoded video.
+
+### This programme can:
+Encode video to H264 and H265.\
+Output resolution includes 2160p, 1080p and 480p.\
 Supports SDR and HDR10 video
 
-## Input
+Encode Audio to Dolby Digital Plus, Dolby Digital and AAC in stereo and 5.1 surround.\
+Dolby Atmos encoding will be added in the future.
+
+Audio encoding are done by 3rd party cloud service provider (aws mediaconvert)
+
+## Video Input
 Recommend resolution:
  - 1920 x 1080 (Full HD)
  - 3840 x 2160 (Ultra HD)
@@ -15,6 +24,9 @@ The container of the input video should be Quicktime (.mov).\
 The number of frames, FPS, resolution must be the same for both HDR and SDR version of the input video.\
 Input files should be placed in the same directory with metadata.json.
 
+## Audio Input
+5.1 surround (L R C LFE Ls Rs) and stereo (L R) embedded in main video file or as a seperate file.\
+Audio duration and video duration should be the same.
 
 ## metadata.json Examples
 ### SDR without embedded audio

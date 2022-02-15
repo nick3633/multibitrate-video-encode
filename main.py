@@ -1,5 +1,6 @@
 import os
 import json
+import subprocess
 
 import video.dovi
 import video.encode
@@ -7,6 +8,7 @@ import video.mediainfo
 import video.scenecut
 import video.concat
 import audio.mediainfo
+import audio.encode
 
 
 # package_dir = sys.argv[1]
@@ -16,6 +18,7 @@ def main(package_dir):
         package_file.close()
 
     video_encode_list = {}
+    audio_source_list = {}
     audio_encode_list = {}
     video_info = {}
     for item in package:
@@ -130,20 +133,38 @@ def main(package_dir):
                 audio_encode_list['2_0.ac3'] = audio_info
                 audio_encode_list['2_0.aac'] = audio_info
 
+    # video
     if ('2160p.hevc.hdr' in video_encode_list) and ('2160p.hevc' in video_encode_list):
         del video_encode_list['2160p.hevc']
     if ('1080p.hevc.hdr' in video_encode_list) and ('1080p.hevc' in video_encode_list):
         del video_encode_list['1080p.hevc']
 
-    if ('5_1.eac3' in audio_encode_list) and ('2_0.eac3' in audio_encode_list):
+    segment_list = video.scenecut.scenecut_list(video_info)
+    for key in video_encode_list:
+        video.concat.concat(key, video_media_info=video_encode_list[key], segment_list=segment_list)
+
+    # audio
+    if('5_1.eac3' in audio_encode_list) and ('2_0.eac3' in audio_encode_list):
         del audio_encode_list['2_0.eac3']
     if ('5_1.ac3' in audio_encode_list) and ('2_0.ac3' in audio_encode_list):
         del audio_encode_list['2_0.ac3']
 
-    segment_list = video.scenecut.scenecut_list(video_info)
-
-    '''for key in video_encode_list:
-        video.concat.concat(key, video_media_info=video_encode_list[key], segment_list=segment_list)'''
-
+    reuse_audio_info = {
+        'in_bucket_name': None,
+        'out_bucket_name': None,
+        'tmp_audio_file': None
+    }
     for key in audio_encode_list:
-        print(key + ': ' + json.dumps(audio_encode_list[key], indent=2))
+        reuse_audio_info = audio.encode.encode(key, audio_encode_list[key], reuse_audio_info)
+
+    cmd = []
+    if reuse_audio_info['in_bucket_name']:
+        cmd.append('aws s3 rm s3://' + reuse_audio_info['in_bucket_name'] + '/ --recursive --include "*"')
+        cmd.append('aws s3api delete-bucket --bucket "' + reuse_audio_info['in_bucket_name'] + '"')
+    if reuse_audio_info['out_bucket_name']:
+        cmd.append('aws s3 rm s3://' + reuse_audio_info['out_bucket_name'] + '/ --recursive --include "*"')
+        cmd.append('aws s3api delete-bucket --bucket "' + reuse_audio_info['out_bucket_name'] + '"')
+    for item in cmd:
+        subprocess.call(item, shell=True)
+    if reuse_audio_info['tmp_audio_file'] and os.path.exists(reuse_audio_info['tmp_audio_file']):
+        os.remove(reuse_audio_info['tmp_audio_file'])

@@ -24,7 +24,6 @@ def info(video_path, video_metadata, dr):
         os.remove('mediainfo_ffprobe.json')
 
     video_fps = mediainfo_ffprobe['streams'][0]['r_frame_rate']
-    print(video_fps)
     video_frame_count = int(mediainfo['media']['track'][1]['FrameCount'])
     video_width = int(mediainfo['media']['track'][1]['Width'])
     video_height = int(mediainfo['media']['track'][1]['Height'])
