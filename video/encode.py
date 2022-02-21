@@ -32,6 +32,8 @@ def encode(
     dr = ladder[quality]['dr']
     codded_width = ladder[quality]['codded_width']
     codded_height = ladder[quality]['codded_width']
+    maxrate = ladder[quality]['maxrate']
+    bufsize = ladder[quality]['bufsize']
     encode_level = ladder[quality]['encode_level']
     crf = ladder[quality]['crf']
 
@@ -152,9 +154,9 @@ def encode(
             cmd = [
                 cmd_base +
                 'x264 --log-level warning --demuxer y4m' +
-                ' --crf ' + crf +
-                ' --preset slower --profile main --level ' + encode_level +
-                ' --no-mbtree --no-fast-pskip --no-dct-decimate' +
+                ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
+                ' --preset slow --profile main --level ' + encode_level +
+                ' --no-fast-pskip --no-dct-decimate --aq-mode 3 --rc-lookahead 50 --qcomp 0.5 ' +
                 ' --keyint ' + keyint + ' --min-keyint 1 --scenecut 0' +
                 hdr_settings +
                 ' --sar 1:1 --stats ' + out_state + ' --qpfile "' + qpfile_path + '" --output "' + out_avc_raw + '" -',
@@ -163,10 +165,10 @@ def encode(
             cmd = [
                 cmd_base +
                 'x265 --log-level warning --y4m' +
-                ' --crf ' + crf +
+                ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
                 ' --preset slow --profile main10 --level-idc ' + encode_level + ' --high-tier' +
                 ' --repeat-headers --aud --hrd' +
-                ' --no-cutree --no-open-gop --pmode --aq-mode 4' +
+                ' --no-open-gop --no-sao --pmode --aq-mode 3 --rc-lookahead 50 --qcomp 0.5 ' +
                 ' --keyint ' + keyint + ' --min-keyint 1 --scenecut 0' +
                 hdr_settings +
                 ' --sar 1:1 --no-info --stats ' + out_state + ' --qpfile "' + qpfile_path + '"' +

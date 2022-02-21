@@ -151,6 +151,7 @@ Dolby Vision HDR encode is **_not_** supported
 - x265
 - mediainfo
 - mp4box
+- aws cli
 
 ## run the program
 ``````

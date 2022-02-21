@@ -45,6 +45,7 @@ def main(package_dir):
                 video_encode_list['2160p.hevc'] = video_info
             if video_info['video_cropped_width'] >= 1920 or video_info['video_cropped_height'] >= 1080:
                 video_encode_list['1080p.avc'] = video_info
+                video_encode_list['1080p.hevc'] = video_info
 
             if ('ignore_audio' in item and 'ignore_audio' == False) or ('ignore_audio' not in item):
                 audio_mediainfo = audio.mediainfo.info(video_path)
