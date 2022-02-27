@@ -141,8 +141,7 @@ Audio duration and video duration should be the same.
 ```
 
 Dolby Vision metadata example: http://download.opencontent.netflix.com.s3.amazonaws.com/TechblogAssets/CosmosLaundromat/cosmos_laundromat_vdm_hdr_p3d65_pq_20160525_01_2048x858/vdm/hdr/p3d65_pq/20160525_01/metadata/cosmos_laundromat_vdm_hdr_p3d65_pq_20160525_01_2048x858_dovi_4000nit_metadata.xml \
-Dolby Vision HDR encode is **_not_** supported
-
+Dolby Vision HDR will only encode to HDR10
 ## Command line tools required
 - python
 - ffmpeg
