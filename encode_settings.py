@@ -107,7 +107,7 @@ encode_settings = {
                     "BitstreamMode": "COMPLETE_MAIN",
                     "CodingMode": "CODING_MODE_3_2",
                     "Bitrate": 640000,
-                    "Dialnorm": 27,
+                    "Dialnorm": 31,
                     "DynamicRangeCompressionLine": "FILM_STANDARD",
                     "DynamicRangeCompressionRf": "FILM_STANDARD",
                     "DcFilter": "ENABLED",
@@ -135,7 +135,7 @@ encode_settings = {
                     "Bitrate": 384000,
                     "DynamicRangeCompressionLine": "FILM_STANDARD",
                     "DynamicRangeCompressionRf": "FILM_STANDARD",
-                    "Dialnorm": 27,
+                    "Dialnorm": 31,
                     "LfeFilter": "ENABLED"
                 }
             }
@@ -150,7 +150,7 @@ encode_settings = {
                     "BitstreamMode": "COMPLETE_MAIN",
                     "CodingMode": "CODING_MODE_2_0",
                     "Bitrate": 320000,
-                    "Dialnorm": 27,
+                    "Dialnorm": 31,
                     "SurroundMode": "NOT_INDICATED",
                     "DynamicRangeCompressionLine": "FILM_STANDARD",
                     "DynamicRangeCompressionRf": "FILM_STANDARD",
@@ -169,7 +169,7 @@ encode_settings = {
                     "Bitrate": 192000,
                     "DynamicRangeCompressionLine": "FILM_STANDARD",
                     "DynamicRangeCompressionRf": "FILM_STANDARD",
-                    "Dialnorm": 27
+                    "Dialnorm": 31
                 }
             }
         },
