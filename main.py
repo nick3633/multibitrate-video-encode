@@ -4,6 +4,7 @@ import subprocess
 
 import video.dovi
 import video.encode
+import video.encode_traditional
 import video.mediainfo
 import video.scenecut
 import video.concat
@@ -12,13 +13,12 @@ import audio.encode
 
 
 # package_dir = sys.argv[1]
-def main(package_dir):
+def main(package_dir, chunked_encoding=False):
     with open(os.path.join(package_dir, 'metadata.json'), 'r') as package_file:
         package = json.loads(package_file.read())
         package_file.close()
 
     video_encode_list = {}
-    audio_source_list = {}
     audio_encode_list = {}
     video_info = {}
     for item in package:
@@ -46,6 +46,9 @@ def main(package_dir):
             if video_info['video_cropped_width'] >= 1920 or video_info['video_cropped_height'] >= 1080:
                 video_encode_list['1080p.avc'] = video_info
                 video_encode_list['1080p.hevc'] = video_info
+            if video_info['video_cropped_width'] >= 854 or video_info['video_cropped_height'] >= 480:
+                video_encode_list['480p.avc'] = video_info
+                video_encode_list['480p.hevc'] = video_info
 
             if ('ignore_audio' in item and 'ignore_audio' == False) or ('ignore_audio' not in item):
                 audio_mediainfo = audio.mediainfo.info(video_path)
@@ -135,14 +138,18 @@ def main(package_dir):
                 audio_encode_list['2_0.aac'] = audio_info
 
     # video
-    if ('2160p.hevc.hdr' in video_encode_list) and ('2160p.hevc' in video_encode_list):
-        del video_encode_list['2160p.hevc']
     if ('1080p.hevc.hdr' in video_encode_list) and ('1080p.hevc' in video_encode_list):
         del video_encode_list['1080p.hevc']
+    if ('2160p.hevc.hdr' in video_encode_list) and ('2160p.hevc' in video_encode_list):
+        del video_encode_list['2160p.hevc']
 
-    segment_list = video.scenecut.scenecut_list(video_info)
-    for key in video_encode_list:
-        video.concat.concat(key, video_media_info=video_encode_list[key], segment_list=segment_list)
+    if chunked_encoding is True:
+        segment_list = video.scenecut.scenecut_list(video_info)
+        for key in video_encode_list:
+            video.concat.concat(key, video_media_info=video_encode_list[key], segment_list=segment_list)
+    else:
+        for key in video_encode_list:
+            video.encode_traditional.encode(key, video_media_info=video_encode_list[key])
 
     # audio
     if('5_1.eac3' in audio_encode_list) and ('2_0.eac3' in audio_encode_list):

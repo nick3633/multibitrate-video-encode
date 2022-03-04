@@ -34,6 +34,7 @@ def encode(
     codded_height = ladder[quality]['codded_width']
     maxrate = ladder[quality]['maxrate']
     bufsize = ladder[quality]['bufsize']
+    encode_profile = ladder[quality]['encode_profile']
     encode_level = ladder[quality]['encode_level']
     crf = ladder[quality]['crf']
 
@@ -154,25 +155,22 @@ def encode(
             cmd = [
                 cmd_base +
                 'x264 --log-level warning --demuxer y4m' +
-                ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
-                ' --preset slow --profile main --level ' + encode_level +
-                ' --no-fast-pskip --no-dct-decimate --aq-mode 3 --rc-lookahead 50 --qcomp 0.5 ' +
-                ' --keyint ' + keyint + ' --min-keyint 1 --scenecut 0' +
+                ' --crf ' + crf +
+                ' --preset slower --profile ' + encode_profile + ' --level ' + encode_level +
+                ' --no-mbtree --no-fast-pskip --no-dct-decimate --aq-mode 3 --deblock -3:-3' +
                 hdr_settings +
-                ' --sar 1:1 --stats ' + out_state + ' --qpfile "' + qpfile_path + '" --output "' + out_avc_raw + '" -',
+                ' --sar 1:1 --stats ' + out_state + ' --output "' + out_avc_raw + '" -',
             ]
         elif codec == 'hevc':
             cmd = [
                 cmd_base +
                 'x265 --log-level warning --y4m' +
-                ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
-                ' --preset slow --profile main10 --level-idc ' + encode_level + ' --high-tier' +
+                ' --crf ' + crf +
+                ' --preset slow --profile ' + encode_profile + ' --level-idc ' + encode_level + ' --high-tier' +
                 ' --repeat-headers --aud --hrd' +
-                ' --no-open-gop --no-sao --pmode --aq-mode 3 --rc-lookahead 50 --qcomp 0.5 ' +
-                ' --keyint ' + keyint + ' --min-keyint 1 --scenecut 0' +
+                ' --no-cutree --no-open-gop --no-sao --pmode --aq-mode 3 --deblock -3:-3' +
                 hdr_settings +
-                ' --sar 1:1 --no-info --stats ' + out_state + ' --qpfile "' + qpfile_path + '"' +
-                ' --output "' + out_hevc_raw + '" -',
+                ' --sar 1:1 --no-info --stats ' + out_state + ' --output "' + out_hevc_raw + '" -',
             ]
         else:
             raise RuntimeError
