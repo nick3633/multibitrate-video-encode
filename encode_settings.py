@@ -93,7 +93,7 @@ encode_settings = {
                     "DownmixControl": "INITIALIZE_FROM_SOURCE",
                     "MeteringMode": "ITU_BS_1770_4",
                     "DialogueIntelligence": "ENABLED",
-                    "SpeechThreshold": 15
+                    "SpeechThreshold": 10
                 }
             }
         },
