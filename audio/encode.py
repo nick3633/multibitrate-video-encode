@@ -4,6 +4,8 @@ import string
 import random
 import os
 import time
+import shutil
+
 
 import encode_settings
 
@@ -16,13 +18,19 @@ def encode(quality, audio_info, reuse_audio_info):
     codec_settings = ladder[quality]['codec_settings']
 
     audio_path = audio_info['audio_path']
-    audio_track = audio_info['audio_tracks'][channel]['track']
+    if quality == 'atmos.eac3':
+        audio_track = 'not_applicable'
+    else:
+        audio_track = audio_info['audio_tracks'][channel]['track']
 
     in_bucket_name = reuse_audio_info['in_bucket_name']
     out_bucket_name = reuse_audio_info['out_bucket_name']
     org_tmp_audio_file = reuse_audio_info['tmp_audio_file']
 
-    tmp_audio_file = 'tmp.' + channel + '.mov'
+    if quality == 'atmos.eac3':
+        tmp_audio_file = 'tmp.' + channel + '.wav'
+    else:
+        tmp_audio_file = 'tmp.' + channel + '.mov'
     output_audio_file_name = channel + '.' + codec
     output_audio_file_ext = codec
     output_audio_file = output_audio_file_name + '.' + output_audio_file_ext
@@ -39,13 +47,16 @@ def encode(quality, audio_info, reuse_audio_info):
         if not os.path.exists(tmp_audio_file):
             if org_tmp_audio_file and os.path.exists(org_tmp_audio_file):
                 os.remove(org_tmp_audio_file)
-            cmd = [
-                'ffmpeg -loglevel warning -i "' + audio_path + '"' +
-                ' -c:a copy -map 0:' + audio_track + ' -n "' + tmp_audio_file + '"'
-            ]
-            for item in cmd:
-                print(item)
-                subprocess.call(item, shell=True)
+            if quality == 'atmos.eac3':
+                shutil.copyfile(audio_path, tmp_audio_file)
+            else:
+                cmd = [
+                    'ffmpeg -loglevel warning -i "' + audio_path + '"' +
+                    ' -c:a copy -map 0:' + audio_track + ' -n "' + tmp_audio_file + '"'
+                ]
+                for item in cmd:
+                    print(item)
+                    subprocess.call(item, shell=True)
 
     # create input and output bucket
     while True:

@@ -8,7 +8,7 @@ Output resolution includes 2160p, 1080p and 480p.\
 Supports SDR and HDR10 video
 
 Encode Audio to Dolby Digital Plus, Dolby Digital and AAC in stereo and 5.1 surround.\
-Dolby Atmos encoding will be added in the future.
+Encode Audio to Dolby Atmos.
 
 Audio encoding are done by 3rd party cloud service provider (aws mediaconvert)
 
@@ -27,6 +27,9 @@ Input files should be placed in the same directory with metadata.json.
 ## Audio Input
 5.1 surround (L R C LFE Ls Rs) and stereo (L R) embedded in main video file or as a seperate file.\
 Audio duration and video duration should be the same.
+
+Dolby Atmos master file (BWF ADM) in .wav extension.\
+It should be synced and have the same duration with the primary audio.
 
 ## metadata.json Examples
 ### SDR without embedded audio
@@ -99,16 +102,16 @@ Audio duration and video duration should be the same.
 	}
 ]
 ``````
-### Dolby Vision HDR with embedded audio and alternative audio file provided as primary audio
+### Dolby Vision HDR with embedded audio and alternative audio file provided as primary audio + Dolby Atmos
 ```
 [
 	{
 		"role": "video",
 		"language": "en",
-		"path": "Cosmos_Laundromat_HD_SDR_ProRes_422HQ.mov",
+		"path": "SolLevante_3840x2160_SDR_Prores_422HQ.mov",
 		"crop": {
-			"top": 138,
-			"bottom": 138,
+			"top": 0,
+			"bottom": 0,
 			"left": 0,
 			"right": 0
 		},
@@ -117,25 +120,30 @@ Audio duration and video duration should be the same.
 	{
 		"role": "video_hdr",
 		"language": "en",
-		"path": "Cosmos_Laundromat_HD_HDR_ProRes_4444.mov",
+		"path": "SolLevante_3840x2160_HDR_Prores_4444.mov",
 		"crop": {
-			"top": 138,
-			"bottom": 138,
+			"top": 0,
+			"bottom": 0,
 			"left": 0,
 			"right": 0
 		},
 		"hdr": {
 			"format": "dolby_vision",
 			"dolby_vision": {
-				"metadata": "Cosmos_Laundromat_Mapping.xml"
+				"metadata": "SolLevante_DolbyVision_Metadata.xml"
 			}
 		}
 	},
 	{
 	    "role": "audio",
-        "language": "en",
-	    "path": "Cosmos_Laundromat_Audio.mov",
+		"language": "en",
+	    "path": "SolLevante_Audio.mov",
 	    "primary_audio": true
+	},
+	{
+	    "role": "audio_object_based",
+		"language": "en",
+	    "path": "SolLevante_DolbyAtmos.wav"
 	}
 ]
 ```

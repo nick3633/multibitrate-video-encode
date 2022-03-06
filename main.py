@@ -137,6 +137,14 @@ def main(package_dir, chunked_encoding=False):
                 audio_encode_list['2_0.ac3'] = audio_info
                 audio_encode_list['2_0.aac'] = audio_info
 
+        elif item['role'] == 'audio_object_based':
+            adm_bwf_path = os.path.join(package_dir, item['path'])
+            audio_info = {
+                'audio_path': adm_bwf_path,
+                'audio_lang': item['language']
+            }
+            audio_encode_list['atmos.eac3'] = audio_info
+
     # video
     if ('1080p.hevc.hdr' in video_encode_list) and ('1080p.hevc' in video_encode_list):
         del video_encode_list['1080p.hevc']
