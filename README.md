@@ -158,7 +158,7 @@ Dolby Vision HDR will only encode to HDR10
 - x265
 - mediainfo
 - mp4box
-- aws cli
+- aws cli2
 
 ## run the program
 ``````
