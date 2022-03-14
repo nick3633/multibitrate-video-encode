@@ -2,6 +2,7 @@ import os
 import json
 import subprocess
 
+import encode_settings
 import video.dovi
 import video.encode
 import video.encode_traditional
@@ -12,6 +13,9 @@ import audio.mediainfo
 import audio.encode
 
 
+v_ladder = encode_settings.encode_settings['ladder']
+a_ladder = encode_settings.encode_settings['audio_ladder']
+
 # package_dir = sys.argv[1]
 def main(package_dir, chunked_encoding=False):
     with open(os.path.join(package_dir, 'metadata.json'), 'r') as package_file:
@@ -21,7 +25,7 @@ def main(package_dir, chunked_encoding=False):
     video_encode_list = {}
     audio_encode_list = {}
     video_info = {}
-    for item in package:
+    for item in package['asset']:
         if item['role'] == 'video':
             video_path = os.path.join(package_dir, item['path'])
             video_mediainfo = video.mediainfo.info(video_path, item, 'sdr')
@@ -74,16 +78,16 @@ def main(package_dir, chunked_encoding=False):
             cll = ''
             if item['hdr']['format'] == 'hdr10':
                 master_display = 'G({gx},{gy})B({bx},{by})R({rx},{ry})WP({wpx},{wpy})L({lmax},{lmin})'.format(
-                    gx=str(round(item['hdr']['hdr10']['mastering_display']['green_x']*50000)),
-                    gy=str(round(item['hdr']['hdr10']['mastering_display']['green_y']*50000)),
-                    bx=str(round(item['hdr']['hdr10']['mastering_display']['blue_x']*50000)),
-                    by=str(round(item['hdr']['hdr10']['mastering_display']['blue_y']*50000)),
-                    rx=str(round(item['hdr']['hdr10']['mastering_display']['red_x']*50000)),
-                    ry=str(round(item['hdr']['hdr10']['mastering_display']['red_y']*50000)),
-                    wpx=str(round(item['hdr']['hdr10']['mastering_display']['white_point_x']*50000)),
-                    wpy=str(round(item['hdr']['hdr10']['mastering_display']['white_point_y']*50000)),
-                    lmax=str(round(item['hdr']['hdr10']['mastering_display']['luminance_max']*10000)),
-                    lmin=str(round(item['hdr']['hdr10']['mastering_display']['luminance_min']*10000)),
+                    gx=str(round(item['hdr']['hdr10']['mastering_display']['green_x'] * 50000)),
+                    gy=str(round(item['hdr']['hdr10']['mastering_display']['green_y'] * 50000)),
+                    bx=str(round(item['hdr']['hdr10']['mastering_display']['blue_x'] * 50000)),
+                    by=str(round(item['hdr']['hdr10']['mastering_display']['blue_y'] * 50000)),
+                    rx=str(round(item['hdr']['hdr10']['mastering_display']['red_x'] * 50000)),
+                    ry=str(round(item['hdr']['hdr10']['mastering_display']['red_y'] * 50000)),
+                    wpx=str(round(item['hdr']['hdr10']['mastering_display']['white_point_x'] * 50000)),
+                    wpy=str(round(item['hdr']['hdr10']['mastering_display']['white_point_y'] * 50000)),
+                    lmax=str(round(item['hdr']['hdr10']['mastering_display']['luminance_max'] * 10000)),
+                    lmin=str(round(item['hdr']['hdr10']['mastering_display']['luminance_min'] * 10000)),
                 )
                 cll = '{cll},{fall}'.format(
                     cll=str(item['hdr']['hdr10']['content_lightlevel']['max']),
@@ -145,6 +149,9 @@ def main(package_dir, chunked_encoding=False):
             }
             audio_encode_list['atmos.eac3'] = audio_info
 
+    print(json.dumps(video_encode_list, indent=2))
+    print(json.dumps(audio_encode_list, indent=2))
+
     # video
     if ('1080p.hevc.hdr' in video_encode_list) and ('1080p.hevc' in video_encode_list):
         del video_encode_list['1080p.hevc']
@@ -160,7 +167,7 @@ def main(package_dir, chunked_encoding=False):
             video.encode_traditional.encode(key, video_media_info=video_encode_list[key])
 
     # audio
-    if('5_1.eac3' in audio_encode_list) and ('2_0.eac3' in audio_encode_list):
+    if ('5_1.eac3' in audio_encode_list) and ('2_0.eac3' in audio_encode_list):
         del audio_encode_list['2_0.eac3']
     if ('5_1.ac3' in audio_encode_list) and ('2_0.ac3' in audio_encode_list):
         del audio_encode_list['2_0.ac3']
@@ -184,3 +191,52 @@ def main(package_dir, chunked_encoding=False):
         subprocess.call(item, shell=True)
     if reuse_audio_info['tmp_audio_file'] and os.path.exists(reuse_audio_info['tmp_audio_file']):
         os.remove(reuse_audio_info['tmp_audio_file'])
+
+    # mux
+    videofile = ''
+    videofile_info = {}
+    if '2160p.hevc.hdr' in video_encode_list:
+        videofile = '2160p.hevc.hdr.' + v_ladder['2160p.hevc.hdr']['codec']
+        videofile_info = video_encode_list['2160p.hevc.hdr']
+    elif '2160p.hevc' in video_encode_list:
+        videofile = '2160p.hevc.' + v_ladder['2160p.hevc']['codec']
+        videofile_info = video_encode_list['2160p.hevc']
+    elif '1080p.hevc.hdr' in video_encode_list:
+        videofile = '1080p.hevc.hdr.' + v_ladder['1080p.hevc.hdr']['codec']
+        videofile_info = video_encode_list['1080p.hevc.hdr']
+    elif '1080p.hevc' in video_encode_list:
+        videofile = '1080p.hevc.' + v_ladder['1080p.hevc']['codec']
+        videofile_info = video_encode_list['1080p.hevc']
+    elif '1080p.avc' in video_encode_list:
+        videofile = '1080p.avc.' + v_ladder['1080p.avc']['codec']
+        videofile_info = video_encode_list['1080p.avc']
+
+    audiofile_eac3 = ''
+    audiofile_eac3_info = {}
+    audio_file_ac3 = ''
+    audio_file_ac3_info = {}
+    if 'atmos.eac3' in audio_encode_list and '5_1.ac3' in audio_encode_list:
+        audiofile_eac3 = a_ladder['atmos.eac3']['channel'] + '.' + a_ladder['atmos.eac3']['codec'] + '.' + a_ladder['atmos.eac3']['codec']
+        audiofile_eac3_info = audio_encode_list['atmos.eac3']
+        audio_file_ac3 = a_ladder['5_1.ac3']['channel'] + '.' + a_ladder['5_1.ac3']['codec'] + '.' + a_ladder['5_1.ac3']['codec']
+        audio_file_ac3_info = audio_encode_list['5_1.ac3']
+    elif '5_1.eac3' in audio_encode_list and '5_1.ac3' in audio_encode_list:
+        audiofile_eac3 = a_ladder['5_1.eac3']['channel'] + '.' + a_ladder['5_1.eac3']['codec'] + '.' + a_ladder['5_1.eac3']['codec']
+        audiofile_eac3_info = audio_encode_list['5_1.eac3']
+        audio_file_ac3 = a_ladder['5_1.ac3']['channel'] + '.' + a_ladder['5_1.ac3']['codec'] + '.' + a_ladder['5_1.ac3']['codec']
+        audio_file_ac3_info = audio_encode_list['5_1.ac3']
+    elif '2_0.eac3' in audio_encode_list and '2_0.ac3' in audio_encode_list:
+        audiofile_eac3 = a_ladder['2_0.eac3']['channel'] + '.' + a_ladder['2_0.eac3']['codec'] + '.' + a_ladder['2_0.eac3']['codec']
+        audiofile_eac3_info = audio_encode_list['2_0.eac3']
+        audio_file_ac3 = a_ladder['2_0.ac3']['channel'] + '.' + a_ladder['2_0.ac3']['codec'] + '.' + a_ladder['2_0.ac3']['codec']
+        audio_file_ac3_info = audio_encode_list['2_0.ac3']
+
+    cmd = [
+        'mkvmerge -o video.mkv --title "' + package['title'] + '"' +
+        ' "' + videofile + '"' +
+        ' --language "0:' + audiofile_eac3_info['audio_lang'] + '" "' + audiofile_eac3 + '"' +
+        ' --language "0:' + audio_file_ac3_info['audio_lang'] + '" "' + audio_file_ac3 + '"'
+    ]
+    if not os.path.exists('video.mkv'):
+        print(cmd[0])
+        subprocess.call(cmd[0], shell=True)

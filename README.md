@@ -34,7 +34,10 @@ It should be synced and have the same duration with the primary audio.
 ## metadata.json Examples
 ### SDR without embedded audio
 ``````
-[
+{
+	"title": "Content Title",
+	"language": "en",
+    "asset": [
 	{
 		"role": "video",
 		"language": "en",
@@ -53,10 +56,14 @@ It should be synced and have the same duration with the primary audio.
 	    "primary_audio": true
 	}
 ]
+}
 ``````
 ### HDR 10 with embedded audio
 ``````
-[
+{
+	"title": "Content Title",
+	"language": "en",
+    "asset": [
 	{
 		"role": "video",
 		"language": "en",
@@ -101,10 +108,14 @@ It should be synced and have the same duration with the primary audio.
 		}
 	}
 ]
+}
 ``````
 ### Dolby Vision HDR with embedded audio and alternative audio file provided as primary audio + Dolby Atmos
 ```
-[
+{
+	"title": "Content Title",
+	"language": "en",
+    "asset": [
 	{
 		"role": "video",
 		"language": "en",
@@ -146,6 +157,7 @@ It should be synced and have the same duration with the primary audio.
 	    "path": "SolLevante_DolbyAtmos.wav"
 	}
 ]
+}
 ```
 
 Dolby Vision metadata example: http://download.opencontent.netflix.com.s3.amazonaws.com/TechblogAssets/CosmosLaundromat/cosmos_laundromat_vdm_hdr_p3d65_pq_20160525_01_2048x858/vdm/hdr/p3d65_pq/20160525_01/metadata/cosmos_laundromat_vdm_hdr_p3d65_pq_20160525_01_2048x858_dovi_4000nit_metadata.xml \
