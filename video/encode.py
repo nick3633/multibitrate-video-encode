@@ -34,8 +34,10 @@ def encode(
     codded_height = ladder[quality]['codded_width']
     maxrate = ladder[quality]['maxrate']
     bufsize = ladder[quality]['bufsize']
+    encode_speed = ladder[quality]['encode_speed']
     encode_profile = ladder[quality]['encode_profile']
     encode_level = ladder[quality]['encode_level']
+    encode_extra_settings = ladder[quality]['encode_extra_settings']
     crf = ladder[quality]['crf']
 
     '''pixel format'''

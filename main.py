@@ -60,7 +60,8 @@ def main(package_dir, chunked_encoding=False):
                 audio_info = {
                     'audio_path': video_path,
                     'audio_lang': item['language'],
-                    'audio_tracks': audio_mediainfo
+                    'audio_tracks': audio_mediainfo,
+                    'audio_loudness': item['loudness']
                 }
 
                 if '5_1' in audio_mediainfo:
@@ -130,7 +131,8 @@ def main(package_dir, chunked_encoding=False):
             audio_info = {
                 'audio_path': mov_path,
                 'audio_lang': item['language'],
-                'audio_tracks': audio_mediainfo
+                'audio_tracks': audio_mediainfo,
+                'audio_loudness': item['loudness']
             }
 
             if '5_1' in audio_mediainfo:
@@ -145,7 +147,8 @@ def main(package_dir, chunked_encoding=False):
             adm_bwf_path = os.path.join(package_dir, item['path'])
             audio_info = {
                 'audio_path': adm_bwf_path,
-                'audio_lang': item['language']
+                'audio_lang': item['language'],
+                'audio_loudness': 'not_applicable'
             }
             audio_encode_list['atmos.eac3'] = audio_info
 
@@ -194,22 +197,16 @@ def main(package_dir, chunked_encoding=False):
 
     # mux
     videofile = ''
-    videofile_info = {}
     if '2160p.hevc.hdr' in video_encode_list:
         videofile = '2160p.hevc.hdr.' + v_ladder['2160p.hevc.hdr']['codec']
-        videofile_info = video_encode_list['2160p.hevc.hdr']
     elif '2160p.hevc' in video_encode_list:
         videofile = '2160p.hevc.' + v_ladder['2160p.hevc']['codec']
-        videofile_info = video_encode_list['2160p.hevc']
     elif '1080p.hevc.hdr' in video_encode_list:
         videofile = '1080p.hevc.hdr.' + v_ladder['1080p.hevc.hdr']['codec']
-        videofile_info = video_encode_list['1080p.hevc.hdr']
     elif '1080p.hevc' in video_encode_list:
         videofile = '1080p.hevc.' + v_ladder['1080p.hevc']['codec']
-        videofile_info = video_encode_list['1080p.hevc']
     elif '1080p.avc' in video_encode_list:
         videofile = '1080p.avc.' + v_ladder['1080p.avc']['codec']
-        videofile_info = video_encode_list['1080p.avc']
 
     audiofile_eac3 = ''
     audiofile_eac3_info = {}

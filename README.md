@@ -32,130 +32,141 @@ Dolby Atmos master file (BWF ADM) in .wav extension.\
 It should be synced and have the same duration with the primary audio.
 
 ## metadata.json Examples
-### SDR without embedded audio
+### SDR without embedded 5.1 + 2.0 audio
 ``````
 {
-	"title": "Content Title",
-	"language": "en",
+    "title": "Content Title",
+    "language": "en",
     "asset": [
-	{
-		"role": "video",
-		"language": "en",
-		"path": "ED_HD_PRORES_422HQ.mov",
-		"crop": {
-			"top": 0,
-			"bottom": 0,
-			"left": 0,
-			"right": 0
-		}
-	},
-	{
-	    "role": "audio",
-		"language": "en",
-	    "path": "ED_Audio.mov",
-	    "primary_audio": true
-	}
+    {
+    "role": "video",
+        "language": "en",
+        "path": "ED_HD_PRORES_422HQ.mov",
+        "crop": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0
+        }
+    },
+    {
+        "role": "audio",
+        "language": "en",
+        "path": "ED_Audio.mov",
+        "primary_audio": true,
+        "loudness": {
+            "0": -27,
+            "1": -27
+        }
+    }
 ]
 }
 ``````
-### HDR 10 with embedded audio
+### HDR 10 with embedded 2.0 audio
 ``````
 {
-	"title": "Content Title",
-	"language": "en",
+    "title": "Content Title",
+    "language": "en",
     "asset": [
-	{
-		"role": "video",
-		"language": "en",
-		"path": "Cosmos_Laundromat_HD_SDR_ProRes_422HQ.mov",
-		"crop": {
-			"top": 138,
-			"bottom": 138,
-			"left": 0,
-			"right": 0
-		}
-	},
-	{
-		"role": "video_hdr",
-		"language": "en",
-		"path": "Cosmos_Laundromat_HD_HDR_ProRes_4444.mov",
-		"crop": {
-			"top": 138,
-			"bottom": 138,
-			"left": 0,
-			"right": 0
-		},
-		"hdr": {
-			"format": "hdr10",
-			"hdr10": {
-				"mastering_display": {
-					"red_x": 0.68,
-					"red_y": 0.32,
-					"green_x": 0.265,
-					"green_y": 0.69,
-					"blue_x": 0.15,
-					"blue_y": 0.06,
-					"white_point_x": 0.3127,
-					"white_point_y": 0.329,
-					"luminance_min": 0.005,
-					"luminance_max": 4000
-				},
-				"content_lightlevel": {
-					"max": 0,
-					"max_frame_avg": 0
-				}
-			}
-		}
-	}
+    {
+        "role": "video",
+        "language": "en",
+        "path": "Cosmos_Laundromat_HD_SDR_ProRes_422HQ.mov",
+        "crop": {
+            "top": 138,
+            "bottom": 138,
+            "left": 0,
+            "right": 0
+        },
+        "loudness": {
+            "0": -27
+        }
+    },
+    {
+        "role": "video_hdr",
+        "language": "en",
+        "path": "Cosmos_Laundromat_HD_HDR_ProRes_4444.mov",
+        "crop": {
+            "top": 138,
+            "bottom": 138,
+            "left": 0,
+            "right": 0
+        },
+        "hdr": {
+            "format": "hdr10",
+            "hdr10": {
+                "mastering_display": {
+                    "red_x": 0.68,
+                    "red_y": 0.32,
+                    "green_x": 0.265,
+                    "green_y": 0.69,
+                    "blue_x": 0.15,
+                    "blue_y": 0.06,
+                    "white_point_x": 0.3127,
+                    "white_point_y": 0.329,
+                    "luminance_min": 0.005,
+                    "luminance_max": 4000
+                },
+                "content_lightlevel": {
+                    "max": 0,
+                    "max_frame_avg": 0
+                }
+            }
+        }
+    }
 ]
 }
 ``````
-### Dolby Vision HDR with embedded audio and alternative audio file provided as primary audio + Dolby Atmos
+### Dolby Vision HDR with embedded audio and alternative audio file 5.1 + 2.0 provided as primary audio + Dolby Atmos
 ```
 {
-	"title": "Content Title",
-	"language": "en",
+    "title": "Content Title",
+    "language": "en",
     "asset": [
-	{
-		"role": "video",
-		"language": "en",
-		"path": "SolLevante_3840x2160_SDR_Prores_422HQ.mov",
-		"crop": {
-			"top": 0,
-			"bottom": 0,
-			"left": 0,
-			"right": 0
-		},
-		"ignore_audio": true
-	},
-	{
-		"role": "video_hdr",
-		"language": "en",
-		"path": "SolLevante_3840x2160_HDR_Prores_4444.mov",
-		"crop": {
-			"top": 0,
-			"bottom": 0,
-			"left": 0,
-			"right": 0
-		},
-		"hdr": {
-			"format": "dolby_vision",
-			"dolby_vision": {
-				"metadata": "SolLevante_DolbyVision_Metadata.xml"
-			}
-		}
-	},
-	{
-	    "role": "audio",
-		"language": "en",
-	    "path": "SolLevante_Audio.mov",
-	    "primary_audio": true
-	},
-	{
-	    "role": "audio_object_based",
-		"language": "en",
-	    "path": "SolLevante_DolbyAtmos.wav"
-	}
+    {
+        "role": "video",
+        "language": "en",
+        "path": "SolLevante_3840x2160_SDR_Prores_422HQ.mov",
+        "crop": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0
+        },
+        "ignore_audio": true
+    },
+    {
+        "role": "video_hdr",
+        "language": "en",
+        "path": "SolLevante_3840x2160_HDR_Prores_4444.mov",
+        "crop": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0
+        },
+        "hdr": {
+            "format": "dolby_vision",
+            "dolby_vision": {
+                "metadata": "SolLevante_DolbyVision_Metadata.xml"
+            }
+        }
+    },
+    {
+        "role": "audio",
+        "language": "en",
+        "path": "SolLevante_Audio.mov",
+        "primary_audio": true,
+        "loudness": {
+            "0": -27
+            "1": -27
+        }
+    },
+    {
+        "role": "audio_object_based",
+        "language": "en",
+        "path": "SolLevante_DolbyAtmos.wav"
+    }
 ]
 }
 ```

@@ -42,6 +42,11 @@ def encode(quality, audio_info, reuse_audio_info):
             'tmp_audio_file': org_tmp_audio_file
         }
 
+    if codec == 'eac3' and channel != 'object_based':
+        codec_settings['Eac3Settings']['Dialnorm'] = round(audio_info['audio_loudness'][audio_track] * -1)
+    elif codec == 'ac3':
+        codec_settings['Ac3Settings']['Dialnorm'] = round(audio_info['audio_loudness'][audio_track] * -1)
+
     # create input file
     if tmp_audio_file != org_tmp_audio_file:
         if not os.path.exists(tmp_audio_file):

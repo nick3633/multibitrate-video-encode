@@ -21,8 +21,10 @@ def encode(quality, video_media_info=None):
     codded_height = ladder[quality]['codded_width']
     maxrate = ladder[quality]['maxrate']
     bufsize = ladder[quality]['bufsize']
+    encode_speed = ladder[quality]['encode_speed']
     encode_profile = ladder[quality]['encode_profile']
     encode_level = ladder[quality]['encode_level']
+    encode_extra_settings = ladder[quality]['encode_extra_settings']
     crf = ladder[quality]['crf']
 
     '''pixel format'''
@@ -46,7 +48,7 @@ def encode(quality, video_media_info=None):
         res_settings = 'width=-2:height=' + codded_height
 
     '''build cmd base'''
-    zscale = ',zscale=' + res_settings + ':filter=spline36'
+    zscale = ',zscale=' + res_settings + ':filter=bicubic'
     if dr == 'hdr':
         if (
                 video_media_info['video_colour_primaries'] == 'BT.2020' and
@@ -102,9 +104,8 @@ def encode(quality, video_media_info=None):
             cmd_base +
             'x264 --log-level warning --demuxer y4m' +
             ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
-            ' --preset slower --profile ' + encode_profile + ' --level ' + encode_level +
-            ' --no-mbtree --no-fast-pskip --no-dct-decimate --aq-mode 3 --aq-strength 0.8 --deblock -3:-3' +
-            hdr_settings +
+            ' --preset ' + encode_speed + ' --profile ' + encode_profile + ' --level ' + encode_level +
+            encode_extra_settings + hdr_settings +
             ' --sar 1:1 --stats ' + out_state + ' --output "' + out_avc_raw + '" -',
         ]
         out_file = out_avc_raw
@@ -113,10 +114,8 @@ def encode(quality, video_media_info=None):
             cmd_base +
             'x265 --log-level warning --y4m' +
             ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
-            ' --preset slow --profile ' + encode_profile + ' --level-idc ' + encode_level + ' --high-tier' +
-            ' --repeat-headers --aud --hrd' +
-            ' --no-cutree --no-open-gop --no-sao --pmode --aq-mode 3 --aq-strength 0.8 --deblock -3:-3' +
-            hdr_settings +
+            ' --preset ' + encode_speed + ' --profile ' + encode_profile + ' --level-idc ' + encode_level + ' --high-tier' +
+            ' --repeat-headers --aud --hrd' + encode_extra_settings + hdr_settings +
             ' --sar 1:1 --no-info --stats ' + out_state + ' --output "' + out_hevc_raw + '" -',
         ]
         out_file = out_hevc_raw
