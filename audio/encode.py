@@ -43,9 +43,15 @@ def encode(quality, audio_info, reuse_audio_info):
         }
 
     if codec == 'eac3' and channel != 'object_based':
-        codec_settings['Eac3Settings']['Dialnorm'] = round(audio_info['audio_loudness'][audio_track] * -1)
+        dialnorm = round(audio_info['audio_loudness'][audio_track] * -1)
+        dialnorm = min(dialnorm, 31)
+        dialnorm = max(dialnorm, 1)
+        codec_settings['Eac3Settings']['Dialnorm'] = dialnorm
     elif codec == 'ac3':
-        codec_settings['Ac3Settings']['Dialnorm'] = round(audio_info['audio_loudness'][audio_track] * -1)
+        dialnorm = round(audio_info['audio_loudness'][audio_track] * -1)
+        dialnorm = min(dialnorm, 31)
+        dialnorm = max(dialnorm, 1)
+        codec_settings['Ac3Settings']['Dialnorm'] = dialnorm
 
     # create input file
     if tmp_audio_file != org_tmp_audio_file:

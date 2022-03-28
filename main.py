@@ -61,16 +61,17 @@ def main(package_dir, chunked_encoding=False):
                     'audio_path': video_path,
                     'audio_lang': item['language'],
                     'audio_tracks': audio_mediainfo,
-                    'audio_loudness': item['loudness']
                 }
 
                 if '5_1' in audio_mediainfo:
                     audio_encode_list['5_1.eac3'] = audio_info
                     audio_encode_list['5_1.ac3'] = audio_info
+                    audio_info['audio_loudness'] = item['loudness']
                 if '2_0' in audio_mediainfo:
                     audio_encode_list['2_0.eac3'] = audio_info
                     audio_encode_list['2_0.ac3'] = audio_info
                     audio_encode_list['2_0.aac'] = audio_info
+                    audio_info['audio_loudness'] = item['loudness']
 
         elif item['role'] == 'video_hdr':
             video_path = os.path.join(package_dir, item['path'])
@@ -132,16 +133,17 @@ def main(package_dir, chunked_encoding=False):
                 'audio_path': mov_path,
                 'audio_lang': item['language'],
                 'audio_tracks': audio_mediainfo,
-                'audio_loudness': item['loudness']
             }
 
             if '5_1' in audio_mediainfo:
                 audio_encode_list['5_1.eac3'] = audio_info
                 audio_encode_list['5_1.ac3'] = audio_info
+                audio_info['audio_loudness'] = item['loudness']
             if '2_0' in audio_mediainfo:
                 audio_encode_list['2_0.eac3'] = audio_info
                 audio_encode_list['2_0.ac3'] = audio_info
                 audio_encode_list['2_0.aac'] = audio_info
+                audio_info['audio_loudness'] = item['loudness']
 
         elif item['role'] == 'audio_object_based':
             adm_bwf_path = os.path.join(package_dir, item['path'])
