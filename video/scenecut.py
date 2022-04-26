@@ -49,11 +49,14 @@ def scenecut_list(video_info):
             ' -vf "crop=' + crop_settings + zscale + '"' +
             ' -pix_fmt yuv420p10 -strict -1 -f yuv4mpegpipe -y - | ' +
             'x265 --log-level warning --y4m --crf 23 --no-open-gop' +
-            ' --keyint ' + str(video_frame_count + 1) + ' --rc-lookahead ' + str(int(video_fps_float) * 2) +
-            ' --output "scenecut.hevc" -',
+            ' --keyint ' + str(video_frame_count + 1) + ' --rc-lookahead ' + str(round(video_fps_float * 2)) +
+            ' --output "scenecut.265" -',
 
-            'mp4box -add "scenecut.hevc" -new "scenecut.mp4"'
+            'mp4box -add "scenecut.265" -new "scenecut.mp4"'
     ]
+
+    if os.path.exists('scenecut.265'):
+        os.remove('scenecut.265')
 
     if not os.path.exists('scenecut.mp4'):
         for i in cmd:
