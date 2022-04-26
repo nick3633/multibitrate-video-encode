@@ -1,7 +1,7 @@
 import os
-import json
 import concurrent.futures
 import subprocess
+import multiprocessing
 
 import encode_settings
 import video.encode
@@ -12,8 +12,9 @@ ladder = encode_settings.encode_settings['ladder']
 def concat(key, video_media_info=None, segment_list=None):
     codec = ladder[key]['codec']
     video_fps = video_media_info['video_fps']
+    worker_num = max(int(multiprocessing.cpu_count() * 0.5), 1)
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=worker_num) as executor:
         futures = []
         result_list = {}
         for seg_num in segment_list:
@@ -75,8 +76,10 @@ def concat(key, video_media_info=None, segment_list=None):
             print(cmd)
             subprocess.call(cmd, shell=True)
 
-    if os.path.exists(key + '.mp4'):
-        os.remove(key + '.mp4')
     for item in split_list:
         if os.path.exists(item):
             os.remove(item)
+    if os.path.exists(key + '.mp4'):
+        os.remove(key + '.mp4')
+
+    raise RuntimeError

@@ -15,7 +15,7 @@ def encode(
         duration=0,
         duration_padding=0,
         extract_segment=None,
-        keyint='0',
+        keyint='50',
 ):
     video_path = video_media_info['video_path']
 
@@ -88,7 +88,7 @@ def encode(
     qpfile.close()
 
     '''build cmd base'''
-    zscale = ',zscale=' + res_settings + ':filter=spline36'
+    zscale = ',zscale=' + res_settings + ':filter=bicubic'
     if dr == 'hdr':
         if (
                 video_media_info['video_colour_primaries'] == 'BT.2020' and
@@ -141,47 +141,93 @@ def encode(
     if codec == 'avc':
         hdr_settings = ' --range tv --colorprim bt709 --transfer bt709 --colormatrix bt709'
     elif codec == 'hevc':
-        if dr == 'hdr':
-            hdr_settings = (
-                    ' --range limited --colorprim bt2020 --transfer smpte2084 --colormatrix bt2020nc' +
-                    ' --hdr10 --hdr10-opt' +
-                    ' --master-display "' + video_media_info['video_master_display'] + '"' +
-                    ' --max-cll "' + video_media_info['video_cll'] + '"'
-            )
-        else:
-            hdr_settings = ' --range limited --colorprim bt709 --transfer bt709 --colormatrix bt709'
+        hdr_settings = ' --range limited --colorprim bt709 --transfer bt709 --colormatrix bt709'
+    if dr == 'hdr':
+        hdr_settings = (
+                ' --range limited --colorprim bt2020 --transfer smpte2084 --colormatrix bt2020nc' +
+                ' --hdr10 --hdr10-opt' +
+                ' --master-display "' + video_media_info['video_master_display'] + '"' +
+                ' --max-cll "' + video_media_info['video_cll'] + '"'
+        )
 
     if not os.path.exists(out_raw):
-        '''pass 2'''
+        '''pass 1'''
         if codec == 'avc':
             cmd = [
                 cmd_base +
-                'x264 --log-level warning --demuxer y4m' +
-                ' --crf ' + crf +
-                ' --preset slower --profile ' + encode_profile + ' --level ' + encode_level +
-                ' --no-mbtree --no-fast-pskip --no-dct-decimate --aq-mode 3 --deblock -3:-3' +
-                hdr_settings +
-                ' --sar 1:1 --stats ' + out_state + ' --output "' + out_avc_raw + '" -',
+                'x264 --threads 1 --pass 1 --log-level warning --demuxer y4m' +
+                ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
+                ' --preset ' + encode_speed + ' --profile ' + encode_profile + ' --level ' + encode_level +
+                ' --keyint ' + keyint + ' --min-keyint 1 --scenecut 0 --stitchable' +
+                ' --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' + encode_extra_settings + hdr_settings +
+                ' --stats ' + out_state + ' --qpfile "' + qpfile_path + '" --output "' + out_avc_raw + '" -',
+                'mp4box -add "' + out_avc_raw + '" -new "' + out_mp4 + '"'
             ]
         elif codec == 'hevc':
             cmd = [
                 cmd_base +
-                'x265 --log-level warning --y4m' +
-                ' --crf ' + crf +
-                ' --preset slow --profile ' + encode_profile + ' --level-idc ' + encode_level + ' --high-tier' +
-                ' --repeat-headers --aud --hrd' +
-                ' --no-cutree --no-open-gop --no-sao --pmode --aq-mode 3 --deblock -3:-3' +
-                hdr_settings +
-                ' --sar 1:1 --no-info --stats ' + out_state + ' --output "' + out_hevc_raw + '" -',
+                'x265 --frame-threads 1 --pass 1 --log-level warning --y4m' +
+                ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
+                ' --preset ' + encode_speed + ' --profile ' + encode_profile + ' --level ' + encode_level +
+                ' --high-tier --repeat-headers --aud --hrd --no-open-gop --keyint ' + keyint + ' --min-keyint 1' +
+                ' --scenecut 0 --scenecut-bias 0 --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' +
+                encode_extra_settings + hdr_settings + ' --hrd-concat' +
+                ' --no-info --stats ' + out_state + ' --qpfile "' + qpfile_path + '" --output "' + out_hevc_raw + '" -',
+                'mp4box -add "' + out_hevc_raw + '" -new "' + out_mp4 + '"'
             ]
         else:
             raise RuntimeError
-
         for item in cmd:
             print(item)
             subprocess.call(item, shell=True)
+
+        '''pass 2 rate control'''
+        cmd = (
+                'ffprobe -v error -select_streams "v:0" -show_entries "stream=bit_rate" ' +
+                '-of "default=noprint_wrappers=1:nokey=1" "' + out_mp4 + '"'
+        )
+        print(cmd)
+        pass1_bitrate = int(subprocess.check_output(cmd, shell=True))
+        bitrate = str(round(pass1_bitrate / 1000))
+        if os.path.exists(out_mp4):
+            os.remove(out_mp4)
+
+        '''pass 2'''
+        if codec == 'avc':
+            cmd = [
+                cmd_base +
+                'x264 --threads 1 --pass 2 --log-level warning --demuxer y4m' +
+                ' --bitrate ' + bitrate + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
+                ' --preset ' + encode_speed + ' --profile ' + encode_profile + ' --level ' + encode_level +
+                ' --keyint ' + keyint + ' --min-keyint 1 --scenecut 0 --stitchable' +
+                ' --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' + encode_extra_settings + hdr_settings +
+                ' --stats ' + out_state + ' --qpfile "' + qpfile_path + '" --output "' + out_avc_raw + '" -',
+            ]
+        elif codec == 'hevc':
+            cmd = [
+                cmd_base +
+                'x265 --frame-threads 1 --pass 2 --log-level warning --y4m' +
+                ' --bitrate ' + bitrate + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
+                ' --preset ' + encode_speed + ' --profile ' + encode_profile + ' --level ' + encode_level +
+                ' --high-tier --repeat-headers --aud --hrd --no-open-gop --keyint ' + keyint + ' --min-keyint 1' +
+                ' --scenecut 0 --scenecut-bias 0 --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' +
+                encode_extra_settings + hdr_settings + ' --hrd-concat' +
+                ' --no-info --stats ' + out_state + ' --qpfile "' + qpfile_path + '" --output "' + out_hevc_raw + '" -',
+            ]
+        else:
+            raise RuntimeError
+        for item in cmd:
+            print(item)
+            subprocess.call(item, shell=True)
+
         if os.path.exists(out_state):
             os.remove(out_state)
+        if os.path.exists(out_state + '.mbtree'):
+            os.remove(out_state + '.mbtree')
+        if os.path.exists(out_state + '.cutree'):
+            os.remove(out_state + '.cutree')
+        if os.path.exists(out_state + '.dat'):
+            os.remove(out_state + '.dat')
 
     cmd = [
         'mp4box -add ' + out_raw + ' -new ' + out_mp4,
@@ -197,6 +243,21 @@ def encode(
         os.remove(extract_segment_min)
     if os.path.exists(extract_segment_max):
         os.remove(extract_segment_max)
+
+    if codec == 'avc':
+        bsf = 'h264_mp4toannexb'
+    elif codec == 'hevc':
+        bsf = 'hevc_mp4toannexb'
+    else:
+        raise RuntimeError
+    split_list_new = []
+    for item in split_list:
+        cmd = 'ffmpeg -i "' + item + '" -c copy -bsf:v ' + bsf + ' -f mpegts -y "' + item + '.ts"'
+        subprocess.call(cmd, shell=True)
+        if os.path.exists(item):
+            os.remove(item)
+        split_list_new.append(item + '.ts')
+    split_list = split_list_new
 
     if os.path.exists(out_mp4):
         os.remove(out_mp4)

@@ -1,6 +1,7 @@
 import os
 import json
 import subprocess
+import concurrent.futures
 
 import encode_settings
 import video.dovi
@@ -18,6 +19,7 @@ a_ladder = encode_settings.encode_settings['audio_ladder']
 
 # package_dir = sys.argv[1]
 def main(package_dir, chunked_encoding=False):
+    package_dir = os.path.normpath(package_dir)
     with open(os.path.join(package_dir, 'metadata.json'), 'r') as package_file:
         package = json.loads(package_file.read())
         package_file.close()
@@ -168,8 +170,10 @@ def main(package_dir, chunked_encoding=False):
         for key in video_encode_list:
             video.concat.concat(key, video_media_info=video_encode_list[key], segment_list=segment_list)
     else:
-        for key in video_encode_list:
-            video.encode_traditional.encode(key, video_media_info=video_encode_list[key])
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            futures = []
+            for key in video_encode_list:
+                futures.append(executor.submit(video.encode_traditional.encode, key, video_media_info=video_encode_list[key]))
 
     # audio
     if ('5_1.eac3' in audio_encode_list) and ('2_0.eac3' in audio_encode_list):
