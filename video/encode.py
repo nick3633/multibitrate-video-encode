@@ -29,6 +29,7 @@ def encode(
     video_fps_float = int(video_fps.split('/')[0]) / int(video_fps.split('/')[1])
 
     codec = ladder[quality]['codec']
+    ext = ladder[quality]['ext']
     dr = ladder[quality]['dr']
     codded_width = ladder[quality]['codded_width']
     codded_height = ladder[quality]['codded_width']
@@ -63,16 +64,9 @@ def encode(
     '''output file name'''
     if not os.path.exists(segmant_num + '/'):
         os.mkdir(segmant_num + '/')
-    out_avc_raw = segmant_num + '/' + quality + '.avc'
-    out_hevc_raw = segmant_num + '/' + quality + '.hevc'
+    out_raw = segmant_num + '/' + quality + '.' + ext
     out_mp4 = segmant_num + '/' + quality + '.mp4'
     out_state = segmant_num + '/' + quality + '.log'
-    if codec == 'avc':
-        out_raw = out_avc_raw
-    elif codec == 'hevc':
-        out_raw = out_hevc_raw
-    else:
-        raise RuntimeError
 
     ''' qp '''
     force_keyframe_list = [
@@ -160,8 +154,8 @@ def encode(
                 ' --preset ' + encode_speed + ' --profile ' + encode_profile + ' --level ' + encode_level +
                 ' --keyint ' + keyint + ' --min-keyint 1 --scenecut 0 --stitchable' +
                 ' --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' + encode_extra_settings + hdr_settings +
-                ' --stats ' + out_state + ' --qpfile "' + qpfile_path + '" --output "' + out_avc_raw + '" -',
-                'mp4box -add "' + out_avc_raw + '" -new "' + out_mp4 + '"'
+                ' --stats ' + out_state + ' --qpfile "' + qpfile_path + '" --output "' + out_raw + '" -',
+                'mp4box -add "' + out_raw + '" -new "' + out_mp4 + '"'
             ]
         elif codec == 'hevc':
             cmd = [
@@ -172,8 +166,8 @@ def encode(
                 ' --high-tier --repeat-headers --aud --hrd --no-open-gop --keyint ' + keyint + ' --min-keyint 1' +
                 ' --scenecut 0 --scenecut-bias 0 --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' +
                 encode_extra_settings + hdr_settings + ' --hrd-concat' +
-                ' --no-info --stats ' + out_state + ' --qpfile "' + qpfile_path + '" --output "' + out_hevc_raw + '" -',
-                'mp4box -add "' + out_hevc_raw + '" -new "' + out_mp4 + '"'
+                ' --no-info --stats ' + out_state + ' --qpfile "' + qpfile_path + '" --output "' + out_raw + '" -',
+                'mp4box -add "' + out_raw + '" -new "' + out_mp4 + '"'
             ]
         else:
             raise RuntimeError
@@ -201,7 +195,7 @@ def encode(
                 ' --preset ' + encode_speed + ' --profile ' + encode_profile + ' --level ' + encode_level +
                 ' --keyint ' + keyint + ' --min-keyint 1 --scenecut 0 --stitchable' +
                 ' --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' + encode_extra_settings + hdr_settings +
-                ' --stats ' + out_state + ' --qpfile "' + qpfile_path + '" --output "' + out_avc_raw + '" -',
+                ' --stats ' + out_state + ' --qpfile "' + qpfile_path + '" --output "' + out_raw + '" -',
             ]
         elif codec == 'hevc':
             cmd = [
@@ -212,7 +206,7 @@ def encode(
                 ' --high-tier --repeat-headers --aud --hrd --no-open-gop --keyint ' + keyint + ' --min-keyint 1' +
                 ' --scenecut 0 --scenecut-bias 0 --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' +
                 encode_extra_settings + hdr_settings + ' --hrd-concat' +
-                ' --no-info --stats ' + out_state + ' --qpfile "' + qpfile_path + '" --output "' + out_hevc_raw + '" -',
+                ' --no-info --stats ' + out_state + ' --qpfile "' + qpfile_path + '" --output "' + out_raw + '" -',
             ]
         else:
             raise RuntimeError
@@ -243,21 +237,6 @@ def encode(
         os.remove(extract_segment_min)
     if os.path.exists(extract_segment_max):
         os.remove(extract_segment_max)
-
-    if codec == 'avc':
-        bsf = 'h264_mp4toannexb'
-    elif codec == 'hevc':
-        bsf = 'hevc_mp4toannexb'
-    else:
-        raise RuntimeError
-    split_list_new = []
-    for item in split_list:
-        cmd = 'ffmpeg -i "' + item + '" -c copy -bsf:v ' + bsf + ' -f mpegts -y "' + item + '.ts"'
-        subprocess.call(cmd, shell=True)
-        if os.path.exists(item):
-            os.remove(item)
-        split_list_new.append(item + '.ts')
-    split_list = split_list_new
 
     if os.path.exists(out_mp4):
         os.remove(out_mp4)

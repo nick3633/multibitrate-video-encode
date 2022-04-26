@@ -2,6 +2,7 @@ encode_settings = {
     "ladder": {
         "2160p.hevc": {
             "codec": "hevc",
+            "ext": "265",
             "dr": "sdr",
             "codded_width": "3840",
             "codded_height": "2160",
@@ -15,6 +16,7 @@ encode_settings = {
         },
         "1080p.hevc": {
             "codec": "hevc",
+            "ext": "265",
             "dr": "sdr",
             "codded_width": "1920",
             "codded_height": "1080",
@@ -28,6 +30,7 @@ encode_settings = {
         },
         "480p.hevc": {
             "codec": "hevc",
+            "ext": "265",
             "dr": "sdr",
             "codded_width": "854",
             "codded_height": "480",
@@ -42,6 +45,7 @@ encode_settings = {
 
         "2160p.hevc.hdr": {
             "codec": "hevc",
+            "ext": "265",
             "dr": "hdr",
             "codded_width": "3840",
             "codded_height": "2160",
@@ -55,6 +59,7 @@ encode_settings = {
         },
         "1080p.hevc.hdr": {
             "codec": "hevc",
+            "ext": "265",
             "dr": "hdr",
             "codded_width": "1920",
             "codded_height": "1080",
@@ -69,6 +74,7 @@ encode_settings = {
 
         "1080p.avc": {
             "codec": "avc",
+            "ext": "264",
             "dr": "sdr",
             "codded_width": "1920",
             "codded_height": "1080",
@@ -82,6 +88,7 @@ encode_settings = {
         },
         "480p.avc": {
             "codec": "avc",
+            "ext": "264",
             "dr": "sdr",
             "codded_width": "854",
             "codded_height": "480",
@@ -97,6 +104,7 @@ encode_settings = {
     "audio_ladder": {
         "atmos.eac3": {
             "codec": "eac3",
+            "ext": "ec3",
             "channel": "object_based",
             'codec_settings': {
                 "Codec": "EAC3_ATMOS",
@@ -116,6 +124,7 @@ encode_settings = {
 
         "5_1.eac3": {
             "codec": "eac3",
+            "ext": "ec3",
             "channel": "5_1",
             'codec_settings': {
                 "Codec": "EAC3",
@@ -142,6 +151,7 @@ encode_settings = {
         },
         "5_1.ac3": {
             "codec": "ac3",
+            "ext": "ac3",
             "channel": "5_1",
             'codec_settings': {
                 "Codec": "AC3",
@@ -159,6 +169,7 @@ encode_settings = {
 
         "2_0.eac3": {
             "codec": "eac3",
+            "ext": "ec3",
             "channel": "2_0",
             'codec_settings': {
                 "Codec": "EAC3",
@@ -176,6 +187,7 @@ encode_settings = {
         },
         "2_0.ac3": {
             "codec": "ac3",
+            "ext": "ac3",
             "channel": "2_0",
             'codec_settings': {
                 "Codec": "AC3",
@@ -191,6 +203,7 @@ encode_settings = {
         },
         "2_0.aac": {
             "codec": "aac",
+            "ext": "aac",
             "channel": "2_0",
             'codec_settings': {
                 "Codec": "AAC",

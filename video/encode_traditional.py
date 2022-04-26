@@ -16,6 +16,7 @@ def encode(quality, video_media_info=None):
     video_cropped_height = video_media_info['video_cropped_height']
 
     codec = ladder[quality]['codec']
+    ext = ladder[quality]['ext']
     dr = ladder[quality]['dr']
     codded_width = ladder[quality]['codded_width']
     codded_height = ladder[quality]['codded_width']
@@ -74,15 +75,12 @@ def encode(quality, video_media_info=None):
     )
 
     '''output file name'''
-    out_avc_raw = quality + '.avc'
-    out_hevc_raw = quality + '.hevc'
+    out_raw = quality + '.' + ext
     out_state = quality + '.log'
     out_analysis = quality + '.dat'
 
     '''skip if completed'''
-    if os.path.exists(out_avc_raw):
-        return None
-    if os.path.exists(out_hevc_raw):
+    if os.path.exists(out_raw):
         return None
 
     ''' dynamic range and color space settings '''
@@ -107,8 +105,8 @@ def encode(quality, video_media_info=None):
             ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
             ' --preset ' + encode_speed + ' --profile ' + encode_profile + ' --level ' + encode_level +
             ' --open-gop --keyint 50 --rc-lookahead 50 ' + encode_extra_settings + hdr_settings +
-            ' --stats ' + out_state + ' --output "' + out_avc_raw + '" -',
-            'mp4box -add "' + out_avc_raw + '" -new "tmp.mp4"'
+            ' --stats ' + out_state + ' --output "' + out_raw + '" -',
+            'mp4box -add "' + out_raw + '" -new "tmp.mp4"'
         ]
     elif codec == 'hevc':
         cmd = [
@@ -118,7 +116,8 @@ def encode(quality, video_media_info=None):
             ' --preset ' + encode_speed + ' --profile ' + encode_profile + ' --level ' + encode_level +
             ' --high-tier --repeat-headers --aud --hrd' +
             ' --open-gop --keyint 50 --rc-lookahead 50 ' + encode_extra_settings + hdr_settings +
-            ' --no-info --stats ' + out_state + ' --output "' + out_hevc_raw + '" -',
+            ' --no-info --stats ' + out_state + ' --output "' + out_raw + '" -',
+            'mp4box -add "' + out_raw + '" -new "tmp.mp4"'
         ]
     else:
         raise RuntimeError
@@ -143,9 +142,9 @@ def encode(quality, video_media_info=None):
             ' --bitrate ' + bitrate + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
             ' --preset ' + encode_speed + ' --profile ' + encode_profile + ' --level ' + encode_level +
             ' --open-gop --keyint 50 --rc-lookahead 50 ' + encode_extra_settings + hdr_settings +
-            ' --stats ' + out_state + ' --output "' + out_avc_raw + '" -',
+            ' --stats ' + out_state + ' --output "' + out_raw + '" -',
         ]
-        out_file = out_avc_raw
+        out_file = out_raw
     elif codec == 'hevc':
         cmd = [
             cmd_base +
@@ -154,9 +153,9 @@ def encode(quality, video_media_info=None):
             ' --preset ' + encode_speed + ' --profile ' + encode_profile + ' --level ' + encode_level +
             ' --high-tier --repeat-headers --aud --hrd' +
             ' --open-gop --keyint 50 --rc-lookahead 50 ' + encode_extra_settings + hdr_settings +
-            ' --no-info --stats ' + out_state + ' --output "' + out_hevc_raw + '" -',
+            ' --no-info --stats ' + out_state + ' --output "' + out_raw + '" -',
         ]
-        out_file = out_hevc_raw
+        out_file = out_raw
     else:
         raise RuntimeError
     for item in cmd:

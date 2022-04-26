@@ -14,6 +14,7 @@ ladder = encode_settings.encode_settings['audio_ladder']
 
 def encode(quality, audio_info, reuse_audio_info):
     codec = ladder[quality]['codec']
+    ext = ladder[quality]['ext']
     channel = ladder[quality]['channel']
     codec_settings = ladder[quality]['codec_settings']
 
@@ -32,8 +33,7 @@ def encode(quality, audio_info, reuse_audio_info):
     else:
         tmp_audio_file = 'tmp.' + channel + '.mov'
     output_audio_file_name = channel + '.' + codec
-    output_audio_file_ext = codec
-    output_audio_file = output_audio_file_name + '.' + output_audio_file_ext
+    output_audio_file = output_audio_file_name + '.' + ext
     print(output_audio_file)
     if os.path.exists(output_audio_file):
         return {
@@ -140,7 +140,7 @@ def encode(quality, audio_info, reuse_audio_info):
                         "ContainerSettings": {
                             "Container": "RAW"
                         },
-                        "Extension": output_audio_file_ext
+                        "Extension": ext
                     }
                 ],
                 "CustomName": output_audio_file_name

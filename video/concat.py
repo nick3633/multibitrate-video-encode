@@ -10,8 +10,7 @@ ladder = encode_settings.encode_settings['ladder']
 
 
 def concat(key, video_media_info=None, segment_list=None):
-    codec = ladder[key]['codec']
-    video_fps = video_media_info['video_fps']
+    ext = ladder[key]['ext']
     worker_num = max(int(multiprocessing.cpu_count() * 0.5), 1)
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=worker_num) as executor:
@@ -53,23 +52,18 @@ def concat(key, video_media_info=None, segment_list=None):
         split_list = split_list + result_list[seg]['split_list']
 
     ''' build mp4box cmd '''
-    if codec == 'avc':
-        ext = 'h264'
-        bsf = 'h264_mp4toannexb'
-    elif codec == 'hevc':
-        ext = 'hevc'
-        bsf = 'hevc_mp4toannexb'
-    else:
-        raise ValueError
-
-    with open('cat.txt', 'w') as cat_txt:
-        for item in split_list:
-            cat_txt.write('file \'' + item + '\'\n')
-    cat_txt.close()
+    i = 0
+    for item in split_list:
+        if i < 1:
+            subprocess.call('mp4box -add "' + item + '" -new tmp2.mp4', shell=True)
+        else:
+            subprocess.call('mp4box -add tmp.mp4 -cat "' + item + '" -new tmp2.mp4', shell=True)
+            os.remove('tmp.mp4')
+        os.rename('tmp2.mp4', 'tmp.mp4')
+        i = i + 1
 
     cmd_list = [
-        'ffmpeg -f concat -safe 0 -i cat.txt -c copy ' + key + '.mp4',
-        'ffmpeg -i ' + key + '.mp4 -bsf:v ' + bsf + ' -c:v copy ' + key + '.' + ext,
+        'mp4box -raw 1:output=' + key + '.' + ext + ' "tmp.mp4"'
     ]
     if not os.path.exists(key + '.' + ext):
         for cmd in cmd_list:
@@ -79,7 +73,5 @@ def concat(key, video_media_info=None, segment_list=None):
     for item in split_list:
         if os.path.exists(item):
             os.remove(item)
-    if os.path.exists(key + '.mp4'):
-        os.remove(key + '.mp4')
-
-    raise RuntimeError
+    if os.path.exists('tmp.mp4'):
+        os.remove('tmp.mp4')
