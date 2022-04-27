@@ -35,9 +35,9 @@ def encode(
     codded_height = ladder[quality]['codded_width']
     maxrate = ladder[quality]['maxrate']
     bufsize = ladder[quality]['bufsize']
-    encode_speed = ladder[quality]['encode_speed']
-    encode_profile = ladder[quality]['encode_profile']
-    encode_level = ladder[quality]['encode_level']
+    enc_speed = ladder[quality]['encode_speed']
+    enc_profile = ladder[quality]['encode_profile']
+    enc_level = ladder[quality]['encode_level']
     encode_extra_settings = ladder[quality]['encode_extra_settings']
     crf = ladder[quality]['crf']
 
@@ -152,21 +152,20 @@ def encode(
                 cmd_base +
                 'x264 --threads 1 --log-level warning --demuxer y4m' +
                 ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
-                ' --preset ' + encode_speed + ' --profile ' + encode_profile + ' --level ' + encode_level +
-                ' --keyint ' + keyint + ' --min-keyint 1 --scenecut 0 --stitchable' +
+                ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level +
+                ' --keyint ' + keyint + ' --min-keyint 1 --scenecut 0' +
                 ' --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' + encode_extra_settings + hdr_settings +
-                ' --stats ' + out_state + ' --qpfile "' + qpfile_path + '" --output "' + out_raw_tmp + '" -',
+                ' --stitchable --qpfile "' + qpfile_path + '" --output "' + out_raw_tmp + '" -',
             ]
         elif codec == 'hevc':
             cmd = [
                 cmd_base +
-                'x265 --frame-threads 1 --log-level warning --y4m' +
+                'x265 --frame-threads 1 --no-wpp --log-level warning --y4m' +
                 ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
-                ' --preset ' + encode_speed + ' --profile ' + encode_profile + ' --level ' + encode_level +
-                ' --high-tier --repeat-headers --aud --hrd --no-open-gop --keyint ' + keyint + ' --min-keyint 1' +
-                ' --scenecut 0 --scenecut-bias 0 --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' +
-                encode_extra_settings + hdr_settings + ' --hrd-concat' +
-                ' --no-info --stats ' + out_state + ' --qpfile "' + qpfile_path + '" --output "' + out_raw_tmp + '" -',
+                ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level + ' --high-tier' +
+                ' --no-open-gop --keyint ' + keyint + ' --min-keyint 1 --scenecut 0 --scenecut-bias 0' +
+                ' --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' + encode_extra_settings + hdr_settings +
+                ' --repeat-headers --hrd-concat --qpfile "' + qpfile_path + '" --output "' + out_raw_tmp + '" -',
             ]
         else:
             raise RuntimeError

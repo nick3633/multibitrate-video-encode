@@ -11,7 +11,7 @@ encode_settings = {
             "encode_speed": "slower",
             "encode_profile": "main10",
             "encode_level": "5.1",
-            "encode_extra_settings": " --bframes 8 --qg-size 32 --no-rc-grain --psy-rd 0 ",
+            "encode_extra_settings": " --bframes 8 --psy-rd 0 ",
             "crf": "20",
         },
         "1080p.hevc": {
@@ -25,7 +25,7 @@ encode_settings = {
             "encode_speed": "slower",
             "encode_profile": "main10",
             "encode_level": "4.1",
-            "encode_extra_settings": " --bframes 8 --qg-size 32 --no-rc-grain --psy-rd 0 ",
+            "encode_extra_settings": " --bframes 8 --psy-rd 0 ",
             "crf": "18",
         },
         "480p.hevc": {
@@ -39,7 +39,7 @@ encode_settings = {
             "encode_speed": "slower",
             "encode_profile": "main10",
             "encode_level": "3.1",
-            "encode_extra_settings": " --bframes 8 --qg-size 32 --no-rc-grain --psy-rd 0 ",
+            "encode_extra_settings": " --bframes 8 --psy-rd 0 ",
             "crf": "16",
         },
 
@@ -54,7 +54,7 @@ encode_settings = {
             "encode_speed": "slower",
             "encode_profile": "main10",
             "encode_level": "5.1",
-            "encode_extra_settings": " --bframes 8 --qg-size 32 --no-rc-grain --psy-rd 0 ",
+            "encode_extra_settings": " --bframes 8 --psy-rd 0 ",
             "crf": "17",
         },
         "1080p.hevc.hdr": {
@@ -68,7 +68,7 @@ encode_settings = {
             "encode_speed": "slower",
             "encode_profile": "main10",
             "encode_level": "4.1",
-            "encode_extra_settings": " --bframes 8 --qg-size 32 --no-rc-grain --psy-rd 0 ",
+            "encode_extra_settings": " --bframes 8 --psy-rd 0 ",
             "crf": "15",
         },
 
