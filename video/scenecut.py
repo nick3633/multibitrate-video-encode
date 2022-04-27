@@ -55,13 +55,13 @@ def scenecut_list(video_info):
             'mp4box -add "scenecut.265" -new "scenecut.mp4"'
     ]
 
-    if os.path.exists('scenecut.265'):
-        os.remove('scenecut.265')
-
     if not os.path.exists('scenecut.mp4'):
         for i in cmd:
             print(cmd)
             subprocess.call(i, shell=True)
+
+    if os.path.exists('scenecut.265'):
+        os.remove('scenecut.265')
 
     cmd = 'ffprobe -v error -show_entries frame=pict_type -of json scenecut.mp4 > frame_type.json'
     if not os.path.exists('frame_type.json'):

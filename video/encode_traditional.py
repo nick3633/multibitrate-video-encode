@@ -101,63 +101,25 @@ def encode(quality, video_media_info=None):
     if codec == 'avc':
         cmd = [
             cmd_base +
-            'x264 --threads 1 --pass 1 --log-level warning --demuxer y4m' +
+            'x264 --threads 1 --log-level warning --demuxer y4m' +
             ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
             ' --preset ' + encode_speed + ' --profile ' + encode_profile + ' --level ' + encode_level +
             ' --open-gop --keyint 50 --rc-lookahead 50 ' + encode_extra_settings + hdr_settings +
             ' --stats ' + out_state + ' --output "' + out_raw + '" -',
-            'mp4box -add "' + out_raw + '" -new "tmp.mp4"'
         ]
     elif codec == 'hevc':
         cmd = [
             cmd_base +
-            'x265 --frame-threads 1 --pass 1 --log-level warning --y4m' +
+            'x265 --frame-threads 1 --log-level warning --y4m' +
             ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
             ' --preset ' + encode_speed + ' --profile ' + encode_profile + ' --level ' + encode_level +
             ' --high-tier --repeat-headers --aud --hrd' +
             ' --open-gop --keyint 50 --rc-lookahead 50 ' + encode_extra_settings + hdr_settings +
             ' --no-info --stats ' + out_state + ' --output "' + out_raw + '" -',
-            'mp4box -add "' + out_raw + '" -new "tmp.mp4"'
         ]
     else:
         raise RuntimeError
-    for item in cmd:
-        print(item)
-        subprocess.call(item, shell=True)
-
-    '''pass 2 rate control'''
-    pass1_bitrate = int(subprocess.check_output(
-        'ffprobe -v error -select_streams "v:0" -show_entries "stream=bit_rate"' +
-        ' -of "default=noprint_wrappers=1:nokey=1" "tmp.mp4"',
-        shell=True))
-    bitrate = str(round(pass1_bitrate / 1000))
-    if os.path.exists('tmp.mp4'):
-        os.remove('tmp.mp4')
-
-    '''pass 2'''
-    if codec == 'avc':
-        cmd = [
-            cmd_base +
-            'x264 --threads 1 --pass 2 --log-level warning --demuxer y4m' +
-            ' --bitrate ' + bitrate + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
-            ' --preset ' + encode_speed + ' --profile ' + encode_profile + ' --level ' + encode_level +
-            ' --open-gop --keyint 50 --rc-lookahead 50 ' + encode_extra_settings + hdr_settings +
-            ' --stats ' + out_state + ' --output "' + out_raw + '" -',
-        ]
-        out_file = out_raw
-    elif codec == 'hevc':
-        cmd = [
-            cmd_base +
-            'x265 --frame-threads 1 --pass 2 --log-level warning --y4m' +
-            ' --bitrate ' + bitrate + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
-            ' --preset ' + encode_speed + ' --profile ' + encode_profile + ' --level ' + encode_level +
-            ' --high-tier --repeat-headers --aud --hrd' +
-            ' --open-gop --keyint 50 --rc-lookahead 50 ' + encode_extra_settings + hdr_settings +
-            ' --no-info --stats ' + out_state + ' --output "' + out_raw + '" -',
-        ]
-        out_file = out_raw
-    else:
-        raise RuntimeError
+    out_file = out_raw
     for item in cmd:
         print(item)
         subprocess.call(item, shell=True)

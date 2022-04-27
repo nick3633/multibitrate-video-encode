@@ -52,17 +52,12 @@ def concat(key, video_media_info=None, segment_list=None):
         split_list = split_list + result_list[seg]['split_list']
 
     ''' build mp4box cmd '''
-    i = 0
-    for item in split_list:
-        if i < 1:
-            subprocess.call('mp4box -add "' + item + '" -new tmp2.mp4', shell=True)
-        else:
-            subprocess.call('mp4box -add tmp.mp4 -cat "' + item + '" -new tmp2.mp4', shell=True)
-            os.remove('tmp.mp4')
-        os.rename('tmp2.mp4', 'tmp.mp4')
-        i = i + 1
+    with open('tmp.' + ext, 'ab') as concat_file:
+        for item in split_list:
+            concat_file.write(open(item, 'rb').read())
 
     cmd_list = [
+        'mp4box -add tmp.' + ext + ' -new "tmp.mp4"',
         'mp4box -raw 1:output=' + key + '.' + ext + ' "tmp.mp4"'
     ]
     if not os.path.exists(key + '.' + ext):
@@ -75,3 +70,5 @@ def concat(key, video_media_info=None, segment_list=None):
             os.remove(item)
     if os.path.exists('tmp.mp4'):
         os.remove('tmp.mp4')
+    if os.path.exists('tmp.' + ext):
+        os.remove('tmp.' + ext)
