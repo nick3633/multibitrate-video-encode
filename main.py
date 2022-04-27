@@ -17,8 +17,9 @@ import audio.encode
 v_ladder = encode_settings.encode_settings['ladder']
 a_ladder = encode_settings.encode_settings['audio_ladder']
 
+
 # package_dir = sys.argv[1]
-def main(package_dir, chunked_encoding=False):
+def main(package_dir, chunked_encoding=True):
     package_dir = os.path.normpath(package_dir)
     with open(os.path.join(package_dir, 'metadata.json'), 'r') as package_file:
         package = json.loads(package_file.read())
