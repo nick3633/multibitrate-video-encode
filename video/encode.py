@@ -165,7 +165,7 @@ def encode(
                 ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level + ' --high-tier' +
                 ' --no-open-gop --keyint ' + keyint + ' --min-keyint 1 --scenecut 0 --scenecut-bias 0' +
                 ' --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' + encode_extra_settings + hdr_settings +
-                ' --repeat-headers --hrd-concat --qpfile "' + qpfile_path + '" --output "' + out_raw_tmp + '" -',
+                ' --no-info --repeat-headers --hrd-concat --qpfile "' + qpfile_path + '" --output "' + out_raw_tmp + '" -',
             ]
         else:
             raise RuntimeError
