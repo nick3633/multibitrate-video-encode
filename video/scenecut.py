@@ -1,7 +1,6 @@
 import os
 import subprocess
 import json
-import math
 
 
 def scenecut_list(video_info):
@@ -113,21 +112,12 @@ def scenecut_list(video_info):
         keyint = str(round(video_fps_float * 2))
         start_time_padding = start_time - round(video_fps_float * 2)
         duration_padding = duration + (round(video_fps_float * 2) * 2)
-        total_segment = math.ceil(duration / int(keyint)) + 2
-        print(total_segment)
-        extract_segment = []
-        for i in range(total_segment):
-            extract_segment.append(i)
-        print(extract_segment)
-        extract_segment = extract_segment[1:]
-        extract_segment = extract_segment[:-1]
 
         segmant_list[str(n)] = {
             'start_time': int(start_time),
             'start_time_padding': int(start_time_padding),
             'duration': int(duration),
             'duration_padding': int(duration_padding),
-            'extract_segment': extract_segment,
             'keyint': keyint,
         }
         n = n + 1

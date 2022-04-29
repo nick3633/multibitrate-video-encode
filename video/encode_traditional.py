@@ -22,9 +22,9 @@ def encode(quality, video_media_info=None):
     codded_height = ladder[quality]['codded_width']
     maxrate = ladder[quality]['maxrate']
     bufsize = ladder[quality]['bufsize']
-    encode_speed = ladder[quality]['encode_speed']
-    encode_profile = ladder[quality]['encode_profile']
-    encode_level = ladder[quality]['encode_level']
+    enc_speed = ladder[quality]['encode_speed']
+    enc_profile = ladder[quality]['encode_profile']
+    enc_level = ladder[quality]['encode_level']
     encode_extra_settings = ladder[quality]['encode_extra_settings']
     crf = ladder[quality]['crf']
 
@@ -101,21 +101,22 @@ def encode(quality, video_media_info=None):
     if codec == 'avc':
         cmd = [
             cmd_base +
-            'x264 --threads 1 --log-level warning --demuxer y4m' +
+            'x264 --log-level warning --demuxer y4m' +
             ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
-            ' --preset ' + encode_speed + ' --profile ' + encode_profile + ' --level ' + encode_level +
-            ' --open-gop --keyint 50 --rc-lookahead 50 ' + encode_extra_settings + hdr_settings +
-            ' --stats ' + out_state + ' --output "' + out_raw + '" -',
+            ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level +
+            ' --keyint 50 --min-keyint 50 --scenecut 0' +
+            ' --rc-lookahead 50 ' + encode_extra_settings + hdr_settings +
+            ' --stitchable -o "' + out_raw + '" -',
         ]
     elif codec == 'hevc':
         cmd = [
             cmd_base +
-            'x265 --frame-threads 1 --log-level warning --y4m' +
+            'x265 --log-level warning --y4m' +
             ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
-            ' --preset ' + encode_speed + ' --profile ' + encode_profile + ' --level ' + encode_level +
-            ' --high-tier --repeat-headers --aud --hrd' +
-            ' --open-gop --keyint 50 --rc-lookahead 50 ' + encode_extra_settings + hdr_settings +
-            ' --no-info --stats ' + out_state + ' --output "' + out_raw + '" -',
+            ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level + ' --high-tier' +
+            ' --no-open-gop --keyint 50 --min-keyint 50 --scenecut 0 --scenecut-bias 0' +
+            ' --rc-lookahead 50 ' + encode_extra_settings + hdr_settings +
+            ' --no-info --repeat-headers --hrd-concat -o "' + out_raw + '" -',
         ]
     else:
         raise RuntimeError
@@ -130,7 +131,7 @@ def encode(quality, video_media_info=None):
         os.remove(out_state + '.mbtree')
     if os.path.exists(out_state + '.cutree'):
         os.remove(out_state + '.cutree')
-    if os.path.exists(out_state + '.dat'):
-        os.remove(out_state + '.dat')
+    if os.path.exists(out_analysis):
+        os.remove(out_analysis)
 
     return out_file

@@ -14,7 +14,6 @@ def encode(
         start_time_padding=0,
         duration=0,
         duration_padding=0,
-        extract_segment=None,
         keyint='50',
 ):
     video_path = video_media_info['video_path']
@@ -67,16 +66,30 @@ def encode(
     out_raw = segmant_num + '/' + quality + '.' + ext
     out_raw_tmp = segmant_num + '/tmp.' + ext
     out_mp4 = segmant_num + '/' + quality + '.mp4'
+    out_trim_mp4 = segmant_num + '/' + quality + '.trim.mp4'
+    out_trim_raw = segmant_num + '/' + quality + '.trim.' + ext
     out_state = segmant_num + '/' + quality + '.log'
 
     ''' qp '''
-    force_keyframe_list = [
-        str(start_time - start_time_padding),
-        str(start_time - start_time_padding + duration),
-    ]
+    mp4box_split_start = str(round((start_time - start_time_padding) / video_fps_float, 9))
+    mp4box_split_end = str(round((start_time - start_time_padding + duration) / video_fps_float, 9))
+    keyframe_min = start_time - start_time_padding
+    keyframe_max = start_time - start_time_padding + duration
+    force_keyframe_list = [keyframe_min]
+    i = keyframe_min
+    while True:
+        i = i + int(keyint)
+        if i < keyframe_max:
+            force_keyframe_list.append(i)
+        else:
+            break
+    force_keyframe_list.append(keyframe_max)
     qpfile_string = ''
     for force_keyframe in force_keyframe_list:
-        qpfile_string = qpfile_string + force_keyframe + ' I' + '\n'
+        frame_type = 'I'
+        if force_keyframe == keyframe_min or force_keyframe == keyframe_max:
+            frame_type = 'I'
+        qpfile_string = qpfile_string + str(force_keyframe) + ' ' + frame_type + '\n'
     qpfile_path = segmant_num + '/' + 'qpfile.txt'
     qpfile = open(qpfile_path, 'w')
     qpfile.write(qpfile_string)
@@ -101,6 +114,8 @@ def encode(
                     ':matrix=2020_ncl:transfer=smpte2084:primaries=2020'
             )
 
+    keyint = str(round(duration_padding + 1))
+
     tpad = ''
     if start_time_padding < 0:
         tpad = ',tpad=start_duration=' + str((0 - start_time_padding) / video_fps_float)
@@ -117,19 +132,6 @@ def encode(
             ' -vf "crop=' + crop_settings + zscale + tpad + '"' +
             ' -pix_fmt ' + pix_fmt + ' -strict -1 -f yuv4mpegpipe -y - | '
     )
-
-    ''' split list '''
-    count = 0
-    recat_list = ''
-    split_list = []
-    for i in extract_segment:
-        i = str(i).zfill(3)
-        if count == 0:
-            recat_list = recat_list + ' -add ' + segmant_num + '/' + quality + '_' + i + '.mp4'
-        else:
-            recat_list = recat_list + ' -cat ' + segmant_num + '/' + quality + '_' + i + '.mp4'
-        split_list.append(segmant_num + '/' + quality + '_' + i + '.mp4')
-        count = count + 1
 
     ''' dynamic range and color space settings '''
     hdr_settings = ''
@@ -155,7 +157,7 @@ def encode(
                 ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level +
                 ' --keyint ' + keyint + ' --min-keyint 1 --scenecut 0' +
                 ' --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' + encode_extra_settings + hdr_settings +
-                ' --stitchable --qpfile "' + qpfile_path + '" --output "' + out_raw_tmp + '" -',
+                ' --stitchable --qpfile "' + qpfile_path + '" -o "' + out_raw_tmp + '" -',
             ]
         elif codec == 'hevc':
             cmd = [
@@ -165,7 +167,7 @@ def encode(
                 ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level + ' --high-tier' +
                 ' --no-open-gop --keyint ' + keyint + ' --min-keyint 1 --scenecut 0 --scenecut-bias 0' +
                 ' --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' + encode_extra_settings + hdr_settings +
-                ' --no-info --repeat-headers --hrd-concat --qpfile "' + qpfile_path + '" --output "' + out_raw_tmp + '" -',
+                ' --no-info --repeat-headers --hrd-concat --qpfile "' + qpfile_path + '" -o "' + out_raw_tmp + '" -',
             ]
         else:
             raise RuntimeError
@@ -186,28 +188,18 @@ def encode(
 
     cmd = [
         'mp4box -add ' + out_raw + ' -new ' + out_mp4,
-        'mp4box -splitr 0 ' + out_mp4,
+        'mp4box -splitz ' + mp4box_split_start + ':' + mp4box_split_end + ' ' + out_mp4 + ' -out ' + out_trim_mp4,
+        'mp4box -raw 1:output=' + out_trim_raw + ' ' + out_trim_mp4,
     ]
     for item in cmd:
         print(item)
         subprocess.call(item, shell=True)
 
-    extract_segment_min = segmant_num + '/' + quality + '_' + str(extract_segment[0] - 1).zfill(3) + '.mp4'
-    extract_segment_max = segmant_num + '/' + quality + '_' + str(extract_segment[-1] + 1).zfill(3) + '.mp4'
-    if os.path.exists(extract_segment_min):
-        os.remove(extract_segment_min)
-    if os.path.exists(extract_segment_max):
-        os.remove(extract_segment_max)
-
-    split_list_new = []
-    for item in split_list:
-        subprocess.call('mp4box -raw 1:output=' + item + '.' + ext + ' ' + item, shell=True)
-        os.remove(item)
-        split_list_new.append(item + '.' + ext)
-    split_list = split_list_new
-
+    split_list = [out_trim_raw]
     if os.path.exists(out_mp4):
         os.remove(out_mp4)
+    if os.path.exists(out_trim_mp4):
+        os.remove(out_trim_mp4)
 
     return {
         'segmant_num': segmant_num,

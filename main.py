@@ -1,7 +1,6 @@
 import os
 import json
 import subprocess
-import concurrent.futures
 
 import encode_settings
 import video.dovi
@@ -57,7 +56,7 @@ def main(package_dir, chunked_encoding=True):
                 video_encode_list['480p.avc'] = video_info
                 video_encode_list['480p.hevc'] = video_info
 
-            if ('ignore_audio' in item and 'ignore_audio' == False) or ('ignore_audio' not in item):
+            if ('ignore_audio' in item and 'ignore_audio' is False) or ('ignore_audio' not in item):
                 audio_mediainfo = audio.mediainfo.info(video_path)
 
                 audio_info = {
@@ -171,10 +170,8 @@ def main(package_dir, chunked_encoding=True):
         for key in video_encode_list:
             video.concat.concat(key, video_media_info=video_encode_list[key], segment_list=segment_list)
     else:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-            futures = []
-            for key in video_encode_list:
-                futures.append(executor.submit(video.encode_traditional.encode, key, video_media_info=video_encode_list[key]))
+        for key in video_encode_list:
+            video.encode_traditional.encode(key, video_media_info=video_encode_list[key])
 
     # audio
     if ('5_1.eac3' in audio_encode_list) and ('2_0.eac3' in audio_encode_list):
