@@ -2,6 +2,7 @@ import subprocess
 import os
 
 import encode_settings
+import video.get_level
 
 ladder = encode_settings.encode_settings['ladder']
 
@@ -15,6 +16,10 @@ def encode(quality, video_media_info=None):
     video_cropped_width = video_media_info['video_cropped_width']
     video_cropped_height = video_media_info['video_cropped_height']
 
+    video_fps = video_media_info['video_fps']
+    video_fps_float = int(video_fps.split('/')[0]) / int(video_fps.split('/')[1])
+    keyint = str(round(video_fps_float * 2))
+
     codec = ladder[quality]['codec']
     ext = ladder[quality]['ext']
     dr = ladder[quality]['dr']
@@ -24,7 +29,6 @@ def encode(quality, video_media_info=None):
     bufsize = ladder[quality]['bufsize']
     enc_speed = ladder[quality]['encode_speed']
     enc_profile = ladder[quality]['encode_profile']
-    enc_level = ladder[quality]['encode_level']
     encode_extra_settings = ladder[quality]['encode_extra_settings']
     crf = ladder[quality]['crf']
 
@@ -44,9 +48,28 @@ def encode(quality, video_media_info=None):
 
     '''video res'''
     if video_cropped_width / video_cropped_height >= 16 / 9:
-        res_settings = 'width=' + codded_width + ':height=-2'
+        final_width = codded_width
+        final_height = round(int(codded_width) / (video_cropped_width / video_cropped_height) / 2) * 2
     else:
-        res_settings = 'width=-2:height=' + codded_height
+        final_width = round(int(codded_height) * (video_cropped_width / video_cropped_height) / 2) * 2
+        final_height = codded_height
+    res_settings = 'width=' + str(final_width) + ':height=' + str(final_height)
+
+    '''level'''
+    enc_level = video.get_level.get_level(
+        codec,
+        int(final_width),
+        int(final_height),
+        int(maxrate),
+        int(bufsize),
+        enc_profile,
+        video_fps_float
+    )
+
+    '''output file name'''
+    out_raw = quality + '.' + ext
+    out_state = quality + '.log'
+    out_analysis = quality + '.dat'
 
     '''build cmd base'''
     zscale = ',zscale=' + res_settings + ':filter=bicubic'
@@ -74,15 +97,6 @@ def encode(quality, video_media_info=None):
             ' -pix_fmt ' + pix_fmt + ' -strict -1 -f yuv4mpegpipe -y - | '
     )
 
-    '''output file name'''
-    out_raw = quality + '.' + ext
-    out_state = quality + '.log'
-    out_analysis = quality + '.dat'
-
-    '''skip if completed'''
-    if os.path.exists(out_raw):
-        return None
-
     ''' dynamic range and color space settings '''
     hdr_settings = ''
     if codec == 'avc':
@@ -104,8 +118,8 @@ def encode(quality, video_media_info=None):
             'x264 --log-level warning --demuxer y4m' +
             ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
             ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level +
-            ' --keyint 50 --min-keyint 50 --scenecut 0' +
-            ' --rc-lookahead 50 ' + encode_extra_settings + hdr_settings +
+            ' --keyint ' + keyint + ' --min-keyint 1 --scenecut 0' +
+            ' --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' + encode_extra_settings + hdr_settings +
             ' --stitchable -o "' + out_raw + '" -',
         ]
     elif codec == 'hevc':
@@ -114,16 +128,18 @@ def encode(quality, video_media_info=None):
             'x265 --log-level warning --y4m' +
             ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
             ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level + ' --high-tier' +
-            ' --no-open-gop --keyint 50 --min-keyint 50 --scenecut 0 --scenecut-bias 0' +
-            ' --rc-lookahead 50 ' + encode_extra_settings + hdr_settings +
+            ' --no-open-gop --keyint ' + keyint + ' --min-keyint 1 --scenecut 0 --scenecut-bias 0' +
+            ' --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' + encode_extra_settings + hdr_settings +
             ' --no-info --repeat-headers --hrd-concat -o "' + out_raw + '" -',
         ]
     else:
         raise RuntimeError
     out_file = out_raw
-    for item in cmd:
-        print(item)
-        subprocess.call(item, shell=True)
+    '''skip if completed'''
+    if not os.path.exists(out_raw):
+        for item in cmd:
+            print(item)
+            subprocess.call(item, shell=True)
 
     if os.path.exists(out_state):
         os.remove(out_state)

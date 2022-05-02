@@ -10,8 +10,7 @@ encode_settings = {
             "bufsize": "40000",
             "encode_speed": "slower",
             "encode_profile": "main10",
-            "encode_level": "5.1",
-            "encode_extra_settings": " --aq-mode 1 --bframes 8 --psy-rd 0 ",
+            "encode_extra_settings": " --fade --bframes 8 --psy-rd 0 ",
             "crf": "20",
         },
         "1080p.hevc": {
@@ -24,8 +23,7 @@ encode_settings = {
             "bufsize": "16000",
             "encode_speed": "slower",
             "encode_profile": "main10",
-            "encode_level": "4.1",
-            "encode_extra_settings": " --aq-mode 1 --bframes 8 --psy-rd 0 ",
+            "encode_extra_settings": " --ctu 32 --fade --bframes 8 --psy-rd 0 ",
             "crf": "18",
         },
         "480p.hevc": {
@@ -38,8 +36,7 @@ encode_settings = {
             "bufsize": "4000",
             "encode_speed": "slower",
             "encode_profile": "main10",
-            "encode_level": "3.1",
-            "encode_extra_settings": " --aq-mode 1 --bframes 8 --psy-rd 0 ",
+            "encode_extra_settings": " --ctu 16 --fade --bframes 8 --psy-rd 0 ",
             "crf": "16",
         },
 
@@ -53,8 +50,7 @@ encode_settings = {
             "bufsize": "40000",
             "encode_speed": "slower",
             "encode_profile": "main10",
-            "encode_level": "5.1",
-            "encode_extra_settings": " --aq-mode 1 --bframes 8 --psy-rd 0 ",
+            "encode_extra_settings": " --fade --bframes 8 --psy-rd 0 ",
             "crf": "17",
         },
         "1080p.hevc.hdr": {
@@ -67,8 +63,7 @@ encode_settings = {
             "bufsize": "16000",
             "encode_speed": "slower",
             "encode_profile": "main10",
-            "encode_level": "4.1",
-            "encode_extra_settings": " --aq-mode 1 --bframes 8 --psy-rd 0 ",
+            "encode_extra_settings": " --ctu 32 --fade --bframes 8 --psy-rd 0 ",
             "crf": "15",
         },
 
@@ -82,7 +77,6 @@ encode_settings = {
             "bufsize": "16000",
             "encode_speed": "veryslow",
             "encode_profile": "main",
-            "encode_level": "4.1",
             "encode_extra_settings": " --bframes 8 --psy-rd 0 ",
             "crf": "18",
         },
@@ -96,7 +90,6 @@ encode_settings = {
             "bufsize": "4000",
             "encode_speed": "veryslow",
             "encode_profile": "main",
-            "encode_level": "3.1",
             "encode_extra_settings": " --bframes 8 --psy-rd 0 ",
             "crf": "16",
         }

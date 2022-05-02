@@ -2,6 +2,7 @@ import subprocess
 import os
 
 import encode_settings
+import video.get_level
 
 ladder = encode_settings.encode_settings['ladder']
 
@@ -36,7 +37,6 @@ def encode(
     bufsize = ladder[quality]['bufsize']
     enc_speed = ladder[quality]['encode_speed']
     enc_profile = ladder[quality]['encode_profile']
-    enc_level = ladder[quality]['encode_level']
     encode_extra_settings = ladder[quality]['encode_extra_settings']
     crf = ladder[quality]['crf']
 
@@ -56,9 +56,23 @@ def encode(
 
     '''video res'''
     if video_cropped_width / video_cropped_height >= 16 / 9:
-        res_settings = 'width=' + codded_width + ':height=-2'
+        final_width = codded_width
+        final_height = round(int(codded_width) / (video_cropped_width / video_cropped_height) / 2) * 2
     else:
-        res_settings = 'width=-2:height=' + codded_height
+        final_width = round(int(codded_height) * (video_cropped_width / video_cropped_height) / 2) * 2
+        final_height = codded_height
+    res_settings = 'width=' + str(final_width) + ':height=' + str(final_height)
+
+    '''level'''
+    enc_level = video.get_level.get_level(
+        codec,
+        int(final_width),
+        int(final_height),
+        int(maxrate),
+        int(bufsize),
+        enc_profile,
+        video_fps_float
+    )
 
     '''output file name'''
     if not os.path.exists(segmant_num + '/'):
@@ -75,14 +89,15 @@ def encode(
     mp4box_split_end = str(round((start_time - start_time_padding + duration) / video_fps_float, 9))
     keyframe_min = start_time - start_time_padding
     keyframe_max = start_time - start_time_padding + duration
-    force_keyframe_list = [keyframe_min]
-    i = keyframe_min
+    force_keyframe_list = []
+    force_keyframe_list.append(keyframe_min)
+    '''i = keyframe_min
     while True:
         i = i + int(keyint)
         if i < keyframe_max:
             force_keyframe_list.append(i)
         else:
-            break
+            break'''
     force_keyframe_list.append(keyframe_max)
     qpfile_string = ''
     for force_keyframe in force_keyframe_list:
@@ -113,8 +128,6 @@ def encode(
                     zscale + ':matrixin=709:transferin=smpte2084:primariesin=smpte432' +
                     ':matrix=2020_ncl:transfer=smpte2084:primaries=2020'
             )
-
-    keyint = str(round(duration_padding + 1))
 
     tpad = ''
     if start_time_padding < 0:

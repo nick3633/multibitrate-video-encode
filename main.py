@@ -47,14 +47,14 @@ def main(package_dir, chunked_encoding=True):
                 'video_cropped_height': video_mediainfo['video_cropped_height'],
             }
 
-            if video_info['video_cropped_width'] >= 3840 or video_info['video_cropped_height'] >= 2160:
-                video_encode_list['2160p.hevc'] = video_info
-            if video_info['video_cropped_width'] >= 1920 or video_info['video_cropped_height'] >= 1080:
-                video_encode_list['1080p.avc'] = video_info
-                video_encode_list['1080p.hevc'] = video_info
             if video_info['video_cropped_width'] >= 854 or video_info['video_cropped_height'] >= 480:
                 video_encode_list['480p.avc'] = video_info
                 video_encode_list['480p.hevc'] = video_info
+            if video_info['video_cropped_width'] >= 1920 or video_info['video_cropped_height'] >= 1080:
+                video_encode_list['1080p.avc'] = video_info
+                video_encode_list['1080p.hevc'] = video_info
+            if video_info['video_cropped_width'] >= 3840 or video_info['video_cropped_height'] >= 2160:
+                video_encode_list['2160p.hevc'] = video_info
 
             if ('ignore_audio' in item and 'ignore_audio' is False) or ('ignore_audio' not in item):
                 audio_mediainfo = audio.mediainfo.info(video_path)
