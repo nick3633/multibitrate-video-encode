@@ -131,16 +131,17 @@ def encode(
 
     tpad = ''
     if start_time_padding < 0:
-        tpad = ',tpad=start_duration=' + str((0 - start_time_padding) / video_fps_float)
-        duration_padding = duration_padding - (0 - start_time_padding)
+        tpad = tpad + ',tpad=start_duration=' + str(round((0 - start_time_padding) / video_fps_float, 9))
+        duration_padding = duration_padding + start_time_padding
         start_time_padding = 0
-    elif (start_time_padding + duration_padding) > video_media_info['video_frame_count']:
-        tpad = ',tpad=stop_duration=' + str((duration_padding - duration) / video_fps_float)
-        duration_padding = duration_padding - (duration_padding - (video_media_info['video_frame_count'] - start_time))
+    if (start_time_padding + duration_padding) > video_media_info['video_frame_count']:
+        tpad = tpad + ',tpad=stop_duration=' + str(round((start_time_padding + duration_padding - video_media_info['video_frame_count']) / video_fps_float, 9))
+        duration_padding = video_media_info['video_frame_count'] - start_time_padding
+        start_time_padding = start_time_padding
 
     cmd_base = (
             'ffmpeg -loglevel warning' +
-            ' -ss ' + str(start_time_padding / video_fps_float) + ' -t ' + str(duration_padding / video_fps_float) +
+            ' -ss ' + str(round(start_time_padding / video_fps_float, 9)) + ' -t ' + str(round(duration_padding / video_fps_float, 9)) +
             ' -i "' + video_path + '"' +
             ' -vf "crop=' + crop_settings + zscale + tpad + '"' +
             ' -pix_fmt ' + pix_fmt + ' -strict -1 -f yuv4mpegpipe -y - | '
