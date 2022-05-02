@@ -134,7 +134,7 @@ def encode(
         tpad = ',tpad=start_duration=' + str((0 - start_time_padding) / video_fps_float)
         duration_padding = duration_padding - (0 - start_time_padding)
         start_time_padding = 0
-    if duration_padding > video_media_info['video_frame_count']:
+    elif (start_time_padding + duration_padding) > video_media_info['video_frame_count']:
         tpad = ',tpad=stop_duration=' + str((duration_padding - duration) / video_fps_float)
         duration_padding = duration_padding - (duration_padding - (video_media_info['video_frame_count'] - start_time))
 

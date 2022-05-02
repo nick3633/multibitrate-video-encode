@@ -12,12 +12,10 @@ def scenecut_list(video_info):
 
     video_crop_top = video_info['video_crop_top']
     video_crop_left = video_info['video_crop_left']
-
     video_cropped_width = video_info['video_cropped_width']
     video_cropped_height = video_info['video_cropped_height']
 
     video_frame_count = video_info['video_frame_count']
-
     video_fps = video_info['video_fps']
     video_fps_float = int(video_fps.split('/')[0]) / int(video_fps.split('/')[1])
 
@@ -49,8 +47,7 @@ def scenecut_list(video_info):
             ' -pix_fmt yuv420p10 -strict -1 -f yuv4mpegpipe -y - | ' +
             'x265 --log-level warning --y4m --crf 23 --no-open-gop' +
             ' --keyint ' + str(video_frame_count + 1) + ' --rc-lookahead ' + str(round(video_fps_float * 2)) +
-            ' --output "scenecut.265" -',
-
+            ' --fade --output "scenecut.265" -',
             'mp4box -add "scenecut.265" -new "scenecut.mp4"'
     ]
 
@@ -58,7 +55,6 @@ def scenecut_list(video_info):
         for i in cmd:
             print(cmd)
             subprocess.call(i, shell=True)
-
     if os.path.exists('scenecut.265'):
         os.remove('scenecut.265')
 
