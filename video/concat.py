@@ -2,27 +2,31 @@ import os
 import concurrent.futures
 import subprocess
 import multiprocessing
-
 import encode_settings
 import video.encode
 
 ladder = encode_settings.encode_settings['ladder']
 
 
-def concat(key, video_media_info=None, segment_list=None):
-    ext = ladder[key]['ext']
+def concat(quality, video_media_info=None, segment_list=None):
+    ext = ladder[quality]['ext']
     worker_num = max(int(multiprocessing.cpu_count() * 0.5), 1)
 
-    if os.path.exists(key + '.' + ext):
+    if os.path.exists(quality + '.' + ext):
         return None
+
+    segment_list_key_sorted = {}
+    for key in segment_list:
+        segment_list_key_sorted[key] = segment_list[key]['duration_padding']
+    segment_list_key_sorted = dict(sorted(segment_list_key_sorted.items(), key=lambda item: item[1], reverse=True))
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=worker_num) as executor:
         futures = []
         result_list = {}
-        for seg_num in segment_list:
+        for seg_num in segment_list_key_sorted:
             futures.append(executor.submit(
                 video.encode.encode,
-                key,
+                quality,
                 segmant_num=seg_num,
                 video_media_info=video_media_info,
                 start_time=segment_list[seg_num]['start_time'],
@@ -48,7 +52,7 @@ def concat(key, video_media_info=None, segment_list=None):
 
     cmd_list = [
         'mp4box -add tmp.' + ext + ' -new "tmp.mp4"',
-        'mp4box -raw 1:output=' + key + '.' + ext + ' "tmp.mp4"'
+        'mp4box -raw 1:output=' + quality + '.' + ext + ' "tmp.mp4"'
     ]
     for cmd in cmd_list:
         print(cmd)
