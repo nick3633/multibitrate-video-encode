@@ -51,8 +51,8 @@ def concat(quality, video_media_info=None, segment_list=None):
             concat_file.write(open(item, 'rb').read())
 
     cmd_list = [
-        'mp4box -add tmp.' + ext + ' -new "tmp.mp4"',
-        'mp4box -raw 1:output=' + quality + '.' + ext + ' "tmp.mp4"'
+        'MP4Box -add tmp.' + ext + ' -new "tmp.mp4"',
+        'MP4Box -raw 1:output=' + quality + '.' + ext + ' "tmp.mp4"'
     ]
     for cmd in cmd_list:
         print(cmd)

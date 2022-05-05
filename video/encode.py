@@ -201,9 +201,9 @@ def encode(
             os.remove(out_state + '.dat')
 
     cmd = [
-        'mp4box -add ' + out_raw + ' -new ' + out_mp4,
-        'mp4box -splitz ' + mp4box_split_start + ':' + mp4box_split_end + ' ' + out_mp4 + ' -out ' + out_trim_mp4,
-        'mp4box -raw 1:output=' + out_trim_raw + ' ' + out_trim_mp4,
+        'MP4Box -add ' + out_raw + ' -new ' + out_mp4,
+        'MP4Box -splitz ' + mp4box_split_start + ':' + mp4box_split_end + ' ' + out_mp4 + ' -out ' + out_trim_mp4,
+        'MP4Box -raw 1:output=' + out_trim_raw + ' ' + out_trim_mp4,
     ]
     for item in cmd:
         print(item)
