@@ -47,7 +47,7 @@ def scenecut_list(video_info):
             ' -pix_fmt yuv420p10 -strict -1 -f yuv4mpegpipe -y - | ' +
             'x265 --log-level warning --y4m --crf 23 --no-open-gop' +
             ' --keyint ' + str(video_frame_count + 1) + ' --rc-lookahead ' + str(round(video_fps_float * 2)) +
-            ' --fade --output "scenecut.265" -',
+            ' --output "scenecut.265" -',
             'MP4Box -add "scenecut.265" -new "scenecut.mp4"'
     ]
 

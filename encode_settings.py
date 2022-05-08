@@ -10,7 +10,7 @@ encode_settings = {
             "bufsize": "40000",
             "encode_speed": "slower",
             "encode_profile": "main10",
-            "encode_extra_settings": " --fade --psy-rd 0 ",
+            "encode_extra_settings": " --psy-rd 0 ",
             "crf": "20",
         },
         "1080p.hevc": {
@@ -23,7 +23,7 @@ encode_settings = {
             "bufsize": "16000",
             "encode_speed": "slower",
             "encode_profile": "main10",
-            "encode_extra_settings": " --ctu 32 --fade --psy-rd 0 ",
+            "encode_extra_settings": " --ctu 32 --psy-rd 0 ",
             "crf": "18",
         },
         "480p.hevc": {
@@ -36,7 +36,7 @@ encode_settings = {
             "bufsize": "4000",
             "encode_speed": "slower",
             "encode_profile": "main10",
-            "encode_extra_settings": " --ctu 16 --fade --psy-rd 0 ",
+            "encode_extra_settings": " --ctu 16 --psy-rd 0 ",
             "crf": "16",
         },
 
@@ -50,7 +50,7 @@ encode_settings = {
             "bufsize": "40000",
             "encode_speed": "slower",
             "encode_profile": "main10",
-            "encode_extra_settings": " --fade --psy-rd 0 ",
+            "encode_extra_settings": " --psy-rd 0 ",
             "crf": "17",
         },
         "1080p.hevc.hdr": {
@@ -63,7 +63,7 @@ encode_settings = {
             "bufsize": "16000",
             "encode_speed": "slower",
             "encode_profile": "main10",
-            "encode_extra_settings": " --ctu 32 --fade --psy-rd 0 ",
+            "encode_extra_settings": " --ctu 32 --psy-rd 0 ",
             "crf": "15",
         },
 
