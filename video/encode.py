@@ -1,6 +1,7 @@
 import subprocess
 import os
 import shutil
+import pathlib
 
 import encode_settings
 import video.get_level
@@ -76,8 +77,7 @@ def encode(
     )
 
     '''output file name'''
-    if not os.path.exists(segmant_num + '/'):
-        os.mkdir(segmant_num + '/')
+    pathlib.Path(segmant_num).mkdir(parents=True, exist_ok=True)
     out_raw = segmant_num + '/' + quality + '.' + ext
     out_raw_tmp = segmant_num + '/tmp.' + ext
     out_mp4 = segmant_num + '/' + quality + '.mp4'
@@ -101,9 +101,8 @@ def encode(
             frame_type = 'I'
         qpfile_string = qpfile_string + str(force_keyframe) + ' ' + frame_type + '\n'
     if codec == 'avc':
-        qpfile = open(out_qp, 'w')
-        qpfile.write(qpfile_string)
-        qpfile.close()
+        with open(out_qp, 'w') as qpfile:
+            qpfile.write(qpfile_string)
 
     '''build cmd base'''
     zscale = ',zscale=' + res_settings + ':filter=bicubic'
@@ -189,16 +188,16 @@ def encode(
 
         os.rename(out_raw_tmp, out_raw)
 
-        if os.path.exists(out_state):
-            os.remove(out_state)
-        if os.path.exists(out_state + '.mbtree'):
-            os.remove(out_state + '.mbtree')
-        if os.path.exists(out_state + '.cutree'):
-            os.remove(out_state + '.cutree')
-        if os.path.exists(out_state + '.dat'):
-            os.remove(out_state + '.dat')
-        if os.path.exists(out_qp):
-            os.remove(out_qp)
+    if os.path.exists(out_state):
+        os.remove(out_state)
+    if os.path.exists(out_state + '.mbtree'):
+        os.remove(out_state + '.mbtree')
+    if os.path.exists(out_state + '.cutree'):
+        os.remove(out_state + '.cutree')
+    if os.path.exists(out_state + '.dat'):
+        os.remove(out_state + '.dat')
+    if os.path.exists(out_qp):
+        os.remove(out_qp)
 
     '''trim'''
     if codec == 'avc':
