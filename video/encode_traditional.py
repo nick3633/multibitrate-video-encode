@@ -111,14 +111,14 @@ def encode(quality, video_media_info=None):
                 ' --max-cll "' + video_media_info['video_cll'] + '"'
         )
 
-    '''pass 1'''
+    '''encode'''
     if codec == 'avc':
         cmd = [
             cmd_base +
             'x264 --log-level warning --demuxer y4m' +
             ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
             ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level +
-            ' --keyint ' + keyint + ' --min-keyint 1 --scenecut 0' +
+            ' --keyint ' + keyint + ' --min-keyint ' + keyint + ' --scenecut 0' +
             ' --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' + encode_extra_settings + hdr_settings +
             ' --stitchable -o "' + out_raw + '" -',
         ]
@@ -128,7 +128,7 @@ def encode(quality, video_media_info=None):
             'x265 --log-level warning --y4m' +
             ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
             ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level + ' --high-tier' +
-            ' --no-open-gop --keyint ' + keyint + ' --min-keyint 1 --scenecut 0 --scenecut-bias 0' +
+            ' --no-open-gop --keyint ' + keyint + ' --min-keyint ' + keyint + ' --scenecut 0 --scenecut-bias 0' +
             ' --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' + encode_extra_settings + hdr_settings +
             ' --no-info --repeat-headers --hrd-concat -o "' + out_raw + '" -',
         ]

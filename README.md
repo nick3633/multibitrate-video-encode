@@ -172,7 +172,7 @@ It should be synced and have the same duration with the primary audio.
 ```
 
 Dolby Vision metadata example: http://download.opencontent.netflix.com.s3.amazonaws.com/TechblogAssets/CosmosLaundromat/cosmos_laundromat_vdm_hdr_p3d65_pq_20160525_01_2048x858/vdm/hdr/p3d65_pq/20160525_01/metadata/cosmos_laundromat_vdm_hdr_p3d65_pq_20160525_01_2048x858_dovi_4000nit_metadata.xml \
-Dolby Vision HDR will only encode to HDR10
+This program can't encode Dolby Vision
 ## Command line tools required
 - python
 - ffmpeg

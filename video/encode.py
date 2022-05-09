@@ -84,31 +84,9 @@ def encode(
     out_trim_raw = segmant_num + '/' + quality + '.trim.' + ext
     out_state = segmant_num + '/' + quality + '.log'
 
-    ''' qp '''
+    '''trim start:end'''
     mp4box_split_start = str(round((start_time - start_time_padding) / video_fps_float, 9))
     mp4box_split_end = str(round((start_time - start_time_padding + duration) / video_fps_float, 9))
-    keyframe_min = start_time - start_time_padding
-    keyframe_max = start_time - start_time_padding + duration
-    force_keyframe_list = []
-    force_keyframe_list.append(keyframe_min)
-    '''i = keyframe_min
-    while True:
-        i = i + int(keyint)
-        if i < keyframe_max:
-            force_keyframe_list.append(i)
-        else:
-            break'''
-    force_keyframe_list.append(keyframe_max)
-    qpfile_string = ''
-    for force_keyframe in force_keyframe_list:
-        frame_type = 'I'
-        if force_keyframe == keyframe_min or force_keyframe == keyframe_max:
-            frame_type = 'I'
-        qpfile_string = qpfile_string + str(force_keyframe) + ' ' + frame_type + '\n'
-    qpfile_path = segmant_num + '/' + 'qpfile.txt'
-    qpfile = open(qpfile_path, 'w')
-    qpfile.write(qpfile_string)
-    qpfile.close()
 
     '''build cmd base'''
     zscale = ',zscale=' + res_settings + ':filter=bicubic'
@@ -135,13 +113,15 @@ def encode(
         duration_padding = duration_padding + start_time_padding
         start_time_padding = 0
     if (start_time_padding + duration_padding) > video_media_info['video_frame_count']:
-        tpad = tpad + ',tpad=stop_duration=' + str(round((start_time_padding + duration_padding - video_media_info['video_frame_count']) / video_fps_float, 9))
+        tpad = tpad + ',tpad=stop_duration=' + str(round((start_time_padding + duration_padding -
+                                                          video_media_info['video_frame_count']) / video_fps_float, 9))
         duration_padding = video_media_info['video_frame_count'] - start_time_padding
         start_time_padding = start_time_padding
 
     cmd_base = (
             'ffmpeg -loglevel warning' +
-            ' -ss ' + str(round(start_time_padding / video_fps_float, 9)) + ' -t ' + str(round(duration_padding / video_fps_float, 9)) +
+            ' -ss ' + str(round(start_time_padding / video_fps_float, 9)) +
+            ' -t ' + str(round(duration_padding / video_fps_float, 9)) +
             ' -i "' + video_path + '"' +
             ' -vf "crop=' + crop_settings + zscale + tpad + '"' +
             ' -pix_fmt ' + pix_fmt + ' -strict -1 -f yuv4mpegpipe -y - | '
@@ -161,17 +141,17 @@ def encode(
                 ' --max-cll "' + video_media_info['video_cll'] + '"'
         )
 
+    '''encode'''
     if not os.path.exists(out_raw):
-        '''pass 1'''
         if codec == 'avc':
             cmd = [
                 cmd_base +
                 'x264 --threads 1 --log-level warning --demuxer y4m' +
                 ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
                 ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level +
-                ' --keyint ' + keyint + ' --min-keyint 1 --scenecut 0' +
+                ' --keyint ' + keyint + ' --min-keyint ' + keyint + ' --scenecut 0' +
                 ' --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' + encode_extra_settings + hdr_settings +
-                ' --stitchable --qpfile "' + qpfile_path + '" -o "' + out_raw_tmp + '" -',
+                ' --stitchable -o "' + out_raw_tmp + '" -',
             ]
         elif codec == 'hevc':
             cmd = [
@@ -179,9 +159,9 @@ def encode(
                 'x265 --frame-threads 1 --no-wpp --log-level warning --y4m' +
                 ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
                 ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level + ' --high-tier' +
-                ' --no-open-gop --keyint ' + keyint + ' --min-keyint 1 --scenecut 0 --scenecut-bias 0' +
+                ' --no-open-gop --keyint ' + keyint + ' --min-keyint ' + keyint + ' --scenecut 0 --scenecut-bias 0' +
                 ' --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' + encode_extra_settings + hdr_settings +
-                ' --no-info --repeat-headers --hrd-concat --qpfile "' + qpfile_path + '" -o "' + out_raw_tmp + '" -',
+                ' --no-info --repeat-headers --hrd-concat -o "' + out_raw_tmp + '" -',
             ]
         else:
             raise RuntimeError
@@ -200,6 +180,7 @@ def encode(
         if os.path.exists(out_state + '.dat'):
             os.remove(out_state + '.dat')
 
+    '''trim'''
     cmd = [
         'MP4Box -add ' + out_raw + ' -new ' + out_mp4,
         'MP4Box -splitz ' + mp4box_split_start + ':' + mp4box_split_end + ' ' + out_mp4 + ' -out ' + out_trim_mp4,
