@@ -107,7 +107,7 @@ def scenecut_list(video_info):
 
         keyint = str(round(video_fps_float * 2))
         start_time_padding = start_time - int(keyint)
-        duration_padding = duration + int(keyint)
+        duration_padding = duration + int(keyint) + int(keyint)
 
         segmant_list[str(n)] = {
             'start_time': int(start_time),

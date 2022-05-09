@@ -1,5 +1,6 @@
 import subprocess
 import os
+import shutil
 
 import encode_settings
 import video.get_level
@@ -83,10 +84,26 @@ def encode(
     out_trim_mp4 = segmant_num + '/' + quality + '.trim.mp4'
     out_trim_raw = segmant_num + '/' + quality + '.trim.' + ext
     out_state = segmant_num + '/' + quality + '.log'
+    out_qp = segmant_num + '/' + quality + '.qp.txt'
 
-    '''trim start:end'''
+    ''' qp '''
     mp4box_split_start = str(round((start_time - start_time_padding) / video_fps_float, 9))
     mp4box_split_end = str(round((start_time - start_time_padding + duration) / video_fps_float, 9))
+    keyframe_min = start_time - start_time_padding
+    keyframe_max = start_time - start_time_padding + duration
+    force_keyframe_list = []
+    force_keyframe_list.append(keyframe_min)
+    force_keyframe_list.append(keyframe_max)
+    qpfile_string = ''
+    for force_keyframe in force_keyframe_list:
+        frame_type = 'I'
+        if force_keyframe == keyframe_min or force_keyframe == keyframe_max:
+            frame_type = 'I'
+        qpfile_string = qpfile_string + str(force_keyframe) + ' ' + frame_type + '\n'
+    if codec == 'avc':
+        qpfile = open(out_qp, 'w')
+        qpfile.write(qpfile_string)
+        qpfile.close()
 
     '''build cmd base'''
     zscale = ',zscale=' + res_settings + ':filter=bicubic'
@@ -151,12 +168,13 @@ def encode(
                 ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level +
                 ' --keyint ' + keyint + ' --min-keyint ' + keyint + ' --scenecut 0' +
                 ' --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' + encode_extra_settings + hdr_settings +
-                ' --stitchable -o "' + out_raw_tmp + '" -',
+                ' --stitchable --qpfile "' + out_qp + '" -o "' + out_raw_tmp + '" -',
             ]
         elif codec == 'hevc':
             cmd = [
                 cmd_base +
                 'x265 --frame-threads 1 --no-wpp --log-level warning --y4m' +
+                ' --chunk-start ' + str(keyframe_min) + ' --chunk-end ' + str(keyframe_max) +
                 ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
                 ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level + ' --high-tier' +
                 ' --no-open-gop --keyint ' + keyint + ' --min-keyint ' + keyint + ' --scenecut 0 --scenecut-bias 0' +
@@ -179,16 +197,23 @@ def encode(
             os.remove(out_state + '.cutree')
         if os.path.exists(out_state + '.dat'):
             os.remove(out_state + '.dat')
+        if os.path.exists(out_qp):
+            os.remove(out_qp)
 
     '''trim'''
-    cmd = [
-        'MP4Box -add ' + out_raw + ' -new ' + out_mp4,
-        'MP4Box -splitz ' + mp4box_split_start + ':' + mp4box_split_end + ' ' + out_mp4 + ' -out ' + out_trim_mp4,
-        'MP4Box -raw 1:output=' + out_trim_raw + ' ' + out_trim_mp4,
-    ]
-    for item in cmd:
-        print(item)
-        subprocess.call(item, shell=True)
+    if codec == 'avc':
+        cmd = [
+            'MP4Box -add ' + out_raw + ' -new ' + out_mp4,
+            'MP4Box -splitz ' + mp4box_split_start + ':' + mp4box_split_end + ' ' + out_mp4 + ' -out ' + out_trim_mp4,
+            'MP4Box -raw 1:output=' + out_trim_raw + ' ' + out_trim_mp4,
+        ]
+        for item in cmd:
+            print(item)
+            subprocess.call(item, shell=True)
+    elif codec == 'hevc':
+        if os.path.exists(out_trim_raw):
+            os.remove(out_trim_raw)
+        shutil.copyfile(out_raw, out_trim_raw)
 
     split_list = [out_trim_raw]
     if os.path.exists(out_mp4):
