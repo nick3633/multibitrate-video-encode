@@ -173,7 +173,7 @@ def encode(
             cmd = [
                 cmd_base +
                 'x265 --frame-threads 1 --no-wpp --log-level warning --y4m' +
-                ' --chunk-start ' + str(keyframe_min) + ' --chunk-end ' + str(keyframe_max) +
+                ' --chunk-start ' + str(keyframe_min + 1) + ' --chunk-end ' + str(keyframe_max) +
                 ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
                 ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level + ' --high-tier' +
                 ' --no-open-gop --keyint ' + keyint + ' --min-keyint ' + keyint + ' --scenecut 0 --scenecut-bias 0' +
