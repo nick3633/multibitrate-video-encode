@@ -165,7 +165,7 @@ def encode(
                 'x264 --threads 1 --log-level warning --demuxer y4m' +
                 ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
                 ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level +
-                ' --keyint ' + keyint + ' --min-keyint ' + keyint + ' --scenecut 0' +
+                ' --keyint ' + keyint + ' --min-keyint 1 --scenecut 0' +
                 ' --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' + encode_extra_settings + hdr_settings +
                 ' --stitchable --qpfile "' + out_qp + '" -o "' + out_raw_tmp + '" -',
             ]
@@ -176,7 +176,7 @@ def encode(
                 ' --chunk-start ' + str(keyframe_min + 1) + ' --chunk-end ' + str(keyframe_max) +
                 ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
                 ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level + ' --high-tier' +
-                ' --no-open-gop --keyint ' + keyint + ' --min-keyint ' + keyint + ' --scenecut 0 --scenecut-bias 0' +
+                ' --no-open-gop --keyint ' + keyint + ' --min-keyint 1 --scenecut 0 --scenecut-bias 0' +
                 ' --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' + encode_extra_settings + hdr_settings +
                 ' --no-info --repeat-headers --hrd-concat -o "' + out_raw_tmp + '" -',
             ]
