@@ -20,7 +20,7 @@ def concat(quality, video_media_info=None, segment_list=None):
         segment_list_key_sorted[key] = segment_list[key]['duration_padding']
     segment_list_key_sorted = dict(sorted(segment_list_key_sorted.items(), key=lambda item: item[1], reverse=True))
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=worker_num) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
         futures = []
         result_list = {}
         for seg_num in segment_list_key_sorted:

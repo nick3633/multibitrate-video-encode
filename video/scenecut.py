@@ -45,9 +45,11 @@ def scenecut_list(video_info):
             ' -sws_flags bicubic+accurate_rnd+full_chroma_int+full_chroma_inp+bitexact -sws_dither none' +
             ' -vf "crop=' + crop_settings + zscale + '"' +
             ' -pix_fmt yuv420p10 -strict -1 -f yuv4mpegpipe -y - | ' +
-            'x265 --log-level warning --y4m --crf 23 --no-open-gop' +
-            ' --keyint ' + str(video_frame_count + 1) + ' --rc-lookahead ' + str(round(video_fps_float * 2)) +
-            ' --output "scenecut.265" -',
+            'x265 --y4m' +
+            ' --crf 23 --preset medium --profile main10' +
+            ' --no-open-gop --keyint ' + str(video_frame_count + 1) + ' --min-keyint ' + str(round(video_fps_float)) +
+            ' --rc-lookahead ' + str(round(video_fps_float * 2)) +
+            ' --no-info --repeat-headers --hrd-concat -o "scenecut.265" -',
             'MP4Box -add "scenecut.265" -new "scenecut.mp4"'
     ]
 
@@ -105,9 +107,9 @@ def scenecut_list(video_info):
         except IndexError:
             duration = (video_frame_count - point)
 
-        keyint = str(round(video_fps_float * 2))
-        start_time_padding = start_time - int(keyint)
-        duration_padding = duration + int(keyint) + int(keyint)
+        keyint = str(round(video_fps_float * 6))
+        start_time_padding = start_time - round(video_fps_float * 2)
+        duration_padding = duration + round(video_fps_float * 2) + round(video_fps_float * 2)
 
         segmant_list[str(n)] = {
             'start_time': int(start_time),

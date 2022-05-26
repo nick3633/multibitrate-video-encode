@@ -18,7 +18,7 @@ def encode(quality, video_media_info=None):
 
     video_fps = video_media_info['video_fps']
     video_fps_float = int(video_fps.split('/')[0]) / int(video_fps.split('/')[1])
-    keyint = str(round(video_fps_float * 2))
+    keyint = str(round(video_fps_float * 6))
 
     codec = ladder[quality]['codec']
     ext = ladder[quality]['ext']

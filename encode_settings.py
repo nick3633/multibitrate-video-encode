@@ -1,3 +1,8 @@
+ext = {
+    'avc': '264',
+    'hevc': '265'
+}
+
 encode_settings = {
     "ladder": {
         "2160p.hevc": {
@@ -9,7 +14,7 @@ encode_settings = {
             "maxrate": "30000",
             "bufsize": "40000",
             "encode_speed": "medium",
-            "encode_profile": "main",
+            "encode_profile": "main10",
             "encode_extra_settings": "",
             "crf": "20",
         },
@@ -22,7 +27,7 @@ encode_settings = {
             "maxrate": "12000",
             "bufsize": "16000",
             "encode_speed": "medium",
-            "encode_profile": "main",
+            "encode_profile": "main10",
             "encode_extra_settings": "",
             "crf": "18",
         },
@@ -32,10 +37,10 @@ encode_settings = {
             "dr": "sdr",
             "codded_width": "854",
             "codded_height": "480",
-            "maxrate": "3000",
-            "bufsize": "4000",
+            "maxrate": "3750",
+            "bufsize": "5000",
             "encode_speed": "medium",
-            "encode_profile": "main",
+            "encode_profile": "main10",
             "encode_extra_settings": "",
             "crf": "16",
         },
@@ -76,7 +81,7 @@ encode_settings = {
             "maxrate": "12000",
             "bufsize": "16000",
             "encode_speed": "medium",
-            "encode_profile": "main",
+            "encode_profile": "high",
             "encode_extra_settings": "",
             "crf": "18",
         },
@@ -86,8 +91,8 @@ encode_settings = {
             "dr": "sdr",
             "codded_width": "854",
             "codded_height": "480",
-            "maxrate": "3000",
-            "bufsize": "4000",
+            "maxrate": "3750",
+            "bufsize": "5000",
             "encode_speed": "medium",
             "encode_profile": "main",
             "encode_extra_settings": "",

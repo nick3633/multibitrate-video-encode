@@ -25,6 +25,7 @@ def main(package_dir, chunked_encoding=True):
         package_file.close()
 
     video_encode_list = {}
+    video_hdr_encode_list = {}
     audio_encode_list = {}
     video_info = {}
     for item in package['asset']:
@@ -47,16 +48,15 @@ def main(package_dir, chunked_encoding=True):
                 'video_cropped_height': video_mediainfo['video_cropped_height'],
             }
 
-            if video_info['video_cropped_width'] >= 854 or video_info['video_cropped_height'] >= 480:
-                video_encode_list['480p.avc'] = video_info
-                video_encode_list['480p.hevc'] = video_info
-            if video_info['video_cropped_width'] >= 1920 or video_info['video_cropped_height'] >= 1080:
-                video_encode_list['1080p.avc'] = video_info
-                video_encode_list['1080p.hevc'] = video_info
-            if video_info['video_cropped_width'] >= 3840 or video_info['video_cropped_height'] >= 2160:
-                video_encode_list['2160p.hevc'] = video_info
+            for v_ladder_item in v_ladder:
+                item_width = int(v_ladder[v_ladder_item]['codded_width'])
+                item_height = int(v_ladder[v_ladder_item]['codded_height'])
+                item_dr = v_ladder[v_ladder_item]['dr']
+                if video_info['video_cropped_width'] >= item_width or video_info['video_cropped_height'] >= item_height:
+                    if item_dr == 'sdr':
+                        video_encode_list[v_ladder_item] = video_info
 
-            if ('ignore_audio' in item and 'ignore_audio' is False) or ('ignore_audio' not in item):
+            if ('ignore_audio' in item and 'ignore_audio' == False) or ('ignore_audio' not in item):
                 audio_mediainfo = audio.mediainfo.info(video_path)
 
                 audio_info = {
@@ -122,10 +122,14 @@ def main(package_dir, chunked_encoding=True):
                 'video_transfer_characteristics': video_mediainfo['video_transfer_characteristics'],
                 'video_matrix_coefficients': video_mediainfo['video_matrix_coefficients'],
             }
-            if video_info_hdr['video_cropped_width'] >= 3840 or video_info_hdr['video_cropped_height'] >= 2160:
-                video_encode_list['2160p.hevc.hdr'] = video_info_hdr
-            elif video_info_hdr['video_cropped_width'] >= 1920 or video_info_hdr['video_cropped_height'] >= 1080:
-                video_encode_list['1080p.hevc.hdr'] = video_info_hdr
+            for v_ladder_item in v_ladder:
+                item_width = int(v_ladder[v_ladder_item]['codded_width'])
+                item_height = int(v_ladder[v_ladder_item]['codded_height'])
+                item_dr = v_ladder[v_ladder_item]['dr']
+                if video_info_hdr['video_cropped_width'] >= item_width or \
+                        video_info_hdr['video_cropped_height'] >= item_height:
+                    if item_dr == 'hdr':
+                        video_hdr_encode_list[v_ladder_item] = video_info_hdr
 
         elif item['role'] == 'audio' and item['primary_audio'] is True:
             mov_path = os.path.join(package_dir, item['path'])
@@ -156,14 +160,55 @@ def main(package_dir, chunked_encoding=True):
             }
             audio_encode_list['atmos.eac3'] = audio_info
 
-    print(json.dumps(video_encode_list, indent=2))
-    print(json.dumps(audio_encode_list, indent=2))
-
     # video
-    if ('1080p.hevc.hdr' in video_encode_list) and ('1080p.hevc' in video_encode_list):
-        del video_encode_list['1080p.hevc']
-    if ('2160p.hevc.hdr' in video_encode_list) and ('2160p.hevc' in video_encode_list):
-        del video_encode_list['2160p.hevc']
+    highest_res_only = False
+    hdr_highest_res_only = True
+    replace_sdr_with_hdr = True
+
+    if highest_res_only is True:
+        video_encode_list_sort = {}
+        res_list = []
+        for item in video_encode_list:
+            total_res = int(v_ladder[item]['codded_width']) * int(v_ladder[item]['codded_height'])
+            res_list.append(total_res)
+        res_list.sort(reverse=True)
+        for item in video_encode_list:
+            total_res = int(v_ladder[item]['codded_width']) * int(v_ladder[item]['codded_height'])
+            if total_res == res_list[0]:
+                video_encode_list_sort[item] = video_encode_list[item]
+                break
+        video_encode_list = video_encode_list_sort
+
+    if hdr_highest_res_only is True:
+        video_hdr_encode_list_sort = {}
+        res_list = []
+        for item in video_hdr_encode_list:
+            total_res = int(v_ladder[item]['codded_width']) * int(v_ladder[item]['codded_height'])
+            res_list.append(total_res)
+        res_list.sort(reverse=True)
+        for item in video_hdr_encode_list:
+            total_res = int(v_ladder[item]['codded_width']) * int(v_ladder[item]['codded_height'])
+            if total_res == res_list[0]:
+                video_hdr_encode_list_sort[item] = video_hdr_encode_list[item]
+                break
+        video_hdr_encode_list = video_hdr_encode_list_sort
+
+    if replace_sdr_with_hdr is True:
+        del_list = []
+        for item in video_hdr_encode_list:
+            total_res = int(v_ladder[item]['codded_width']) * int(v_ladder[item]['codded_height'])
+            codec = v_ladder[item]['codec']
+            for item_sdr in video_encode_list:
+                total_res_sdr = int(v_ladder[item_sdr]['codded_width']) * int(v_ladder[item_sdr]['codded_height'])
+                codec_sdr = v_ladder[item_sdr]['codec']
+                if total_res == total_res_sdr and codec == codec_sdr:
+                    del_list.append(item_sdr)
+        for key in del_list:
+            del video_encode_list[key]
+
+    video_encode_list = {**video_encode_list, **video_hdr_encode_list}
+
+    print(json.dumps(video_encode_list, indent=2))
 
     if chunked_encoding is True:
         segment_list = video.scenecut.scenecut_list(video_info)
