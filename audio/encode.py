@@ -7,12 +7,12 @@ import time
 import shutil
 
 
-import encode_settings
-
-ladder = encode_settings.encode_settings['audio_ladder']
+import encode_list
 
 
 def encode(quality, audio_info, reuse_audio_info):
+    ladder = encode_list.read_encode_list()['audio_ladder']
+
     codec = ladder[quality]['codec']
     ext = ladder[quality]['ext']
     channel = ladder[quality]['channel']
@@ -78,6 +78,7 @@ def encode(quality, audio_info, reuse_audio_info):
             cmd = 'aws s3api create-bucket --acl private --bucket "' + in_bucket_name + '"'
             result = subprocess.check_output(cmd, shell=True).decode('utf-8')
             location = json.loads(result)['Location']
+            print(location)
             break
         except subprocess.CalledProcessError or json.JSONDecodeError or KeyError:
             ...
@@ -89,6 +90,7 @@ def encode(quality, audio_info, reuse_audio_info):
             cmd = 'aws s3api create-bucket --acl private --bucket "' + out_bucket_name + '"'
             result = subprocess.check_output(cmd, shell=True).decode('utf-8')
             location = json.loads(result)['Location']
+            print(location)
             break
         except subprocess.CalledProcessError or json.JSONDecodeError or KeyError:
             ...

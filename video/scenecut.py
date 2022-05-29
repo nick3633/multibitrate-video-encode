@@ -19,6 +19,9 @@ def scenecut_list(video_info):
     video_fps = video_info['video_fps']
     video_fps_float = int(video_fps.split('/')[0]) / int(video_fps.split('/')[1])
 
+    hls_compatible = video_info['hls_compatible']
+    hls_compatible_keyint_second = video_info['hls_compatible_keyint_second']
+
     scenecut_start_frame = [0]
     cut_type = {}
     segmant_list = {}
@@ -107,7 +110,10 @@ def scenecut_list(video_info):
         except IndexError:
             duration = (video_frame_count - point)
 
-        keyint = str(round(video_fps_float * 6))
+        if hls_compatible is True:
+            keyint = str(round(video_fps_float * hls_compatible_keyint_second))
+        else:
+            keyint = None
         start_time_padding = start_time - round(video_fps_float * 2)
         duration_padding = duration + round(video_fps_float * 2) + round(video_fps_float * 2)
 
@@ -116,6 +122,7 @@ def scenecut_list(video_info):
             'start_time_padding': int(start_time_padding),
             'duration': int(duration),
             'duration_padding': int(duration_padding),
+            'hls_compatible': hls_compatible,
             'keyint': keyint,
         }
         n = n + 1

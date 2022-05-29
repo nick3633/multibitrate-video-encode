@@ -2,7 +2,8 @@ import os
 import json
 import subprocess
 
-import encode_settings
+import encode_list
+import default_encode_settings
 import video.dovi
 import video.encode
 import video.encode_traditional
@@ -13,17 +14,38 @@ import audio.mediainfo
 import audio.encode
 
 
-v_ladder = encode_settings.encode_settings['ladder']
-a_ladder = encode_settings.encode_settings['audio_ladder']
-
-
-# package_dir = sys.argv[1]
-def main(package_dir, chunked_encoding=True):
+def main(package_dir):
+    """load metadata and encode settings"""
     package_dir = os.path.normpath(package_dir)
     with open(os.path.join(package_dir, 'metadata.json'), 'r') as package_file:
         package = json.loads(package_file.read())
         package_file.close()
 
+    encode_settings_path = os.path.join(package_dir, 'encode_settings.json')
+    if os.path.exists(encode_settings_path):
+        old_encode_settings = json.loads(default_encode_settings.encode_settings)
+        with open(os.path.join(package_dir, 'encode_settings.json'), 'r') as encode_settings_file:
+            custom_encode_settings = json.loads(encode_settings_file.read())
+        custom_encode_settings = {**old_encode_settings, **custom_encode_settings}
+    else:
+        custom_encode_settings = json.loads(default_encode_settings.encode_settings)
+
+    encode_list.write_encode_list(custom_encode_settings)
+    ladder = encode_list.read_encode_list()
+    v_ladder = ladder['ladder']
+    # a_ladder = ladder['audio_ladder']
+
+    chunked_encoding = custom_encode_settings['video_other_settings']['chunked_encoding']
+    highest_res_only = custom_encode_settings['video_other_settings']['sdr_highest_res_only']
+    hdr_highest_res_only = custom_encode_settings['video_other_settings']['hdr_highest_res_only']
+    replace_sdr_with_hdr = custom_encode_settings['video_other_settings']['replace_sdr_with_hdr']
+    hls_compatible = custom_encode_settings['video_other_settings']['hls_compatible']
+    hls_compatible_keyint_second = None
+    if hls_compatible is True:
+        hls_compatible_keyint_second = \
+            custom_encode_settings['video_other_settings']['hls_compatible_settings']['keyint_second']
+
+    """create final encode list"""
     video_encode_list = {}
     video_hdr_encode_list = {}
     audio_encode_list = {}
@@ -46,6 +68,8 @@ def main(package_dir, chunked_encoding=True):
                 'video_height': video_mediainfo['video_height'],
                 'video_cropped_width': video_mediainfo['video_cropped_width'],
                 'video_cropped_height': video_mediainfo['video_cropped_height'],
+                'hls_compatible': hls_compatible,
+                'hls_compatible_keyint_second': hls_compatible_keyint_second,
             }
 
             for v_ladder_item in v_ladder:
@@ -121,6 +145,8 @@ def main(package_dir, chunked_encoding=True):
                 'video_colour_primaries': video_mediainfo['video_colour_primaries'],
                 'video_transfer_characteristics': video_mediainfo['video_transfer_characteristics'],
                 'video_matrix_coefficients': video_mediainfo['video_matrix_coefficients'],
+                'hls_compatible': hls_compatible,
+                'hls_compatible_keyint_second': hls_compatible_keyint_second,
             }
             for v_ladder_item in v_ladder:
                 item_width = int(v_ladder[v_ladder_item]['codded_width'])
@@ -160,11 +186,7 @@ def main(package_dir, chunked_encoding=True):
             }
             audio_encode_list['atmos.eac3'] = audio_info
 
-    # video
-    highest_res_only = False
-    hdr_highest_res_only = True
-    replace_sdr_with_hdr = True
-
+    """edit encode list"""
     if highest_res_only is True:
         video_encode_list_sort = {}
         res_list = []
@@ -207,9 +229,9 @@ def main(package_dir, chunked_encoding=True):
             del video_encode_list[key]
 
     video_encode_list = {**video_encode_list, **video_hdr_encode_list}
-
     print(json.dumps(video_encode_list, indent=2))
 
+    """encode video"""
     if chunked_encoding is True:
         segment_list = video.scenecut.scenecut_list(video_info)
         for key in video_encode_list:
@@ -218,7 +240,7 @@ def main(package_dir, chunked_encoding=True):
         for key in video_encode_list:
             video.encode_traditional.encode(key, video_media_info=video_encode_list[key])
 
-    # audio
+    """encode audio"""
     if ('5_1.eac3' in audio_encode_list) and ('2_0.eac3' in audio_encode_list):
         del audio_encode_list['2_0.eac3']
     if ('5_1.ac3' in audio_encode_list) and ('2_0.ac3' in audio_encode_list):
@@ -243,3 +265,5 @@ def main(package_dir, chunked_encoding=True):
         subprocess.call(item, shell=True)
     if reuse_audio_info['tmp_audio_file'] and os.path.exists(reuse_audio_info['tmp_audio_file']):
         os.remove(reuse_audio_info['tmp_audio_file'])
+    if os.path.exists('encode_settings.json'):
+        os.remove('encode_settings.json')

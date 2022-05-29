@@ -1,13 +1,13 @@
 import subprocess
 import os
 
-import encode_settings
+import encode_list
 import video.get_level
-
-ladder = encode_settings.encode_settings['ladder']
 
 
 def encode(quality, video_media_info=None):
+    ladder = encode_list.read_encode_list()['ladder']
+
     video_path = video_media_info['video_path']
 
     video_crop_top = video_media_info['video_crop_top']
@@ -16,9 +16,15 @@ def encode(quality, video_media_info=None):
     video_cropped_width = video_media_info['video_cropped_width']
     video_cropped_height = video_media_info['video_cropped_height']
 
+    hls_compatible = video_media_info['hls_compatible']
+    hls_compatible_keyint_second = video_media_info['hls_compatible_keyint_second']
+
     video_fps = video_media_info['video_fps']
     video_fps_float = int(video_fps.split('/')[0]) / int(video_fps.split('/')[1])
-    keyint = str(round(video_fps_float * 6))
+    if hls_compatible is True:
+        keyint = str(round(video_fps_float * hls_compatible_keyint_second))
+    else:
+        keyint = '250'
 
     codec = ladder[quality]['codec']
     ext = ladder[quality]['ext']
@@ -111,25 +117,35 @@ def encode(quality, video_media_info=None):
                 ' --max-cll "' + video_media_info['video_cll'] + '"'
         )
 
+    '''keyint & scenecut'''
+    if hls_compatible is True:
+        keyint_scenecut_avc = (
+                ' --keyint ' + keyint + ' --min-keyint ' + keyint + ' --scenecut 0'
+        )
+        keyint_scenecut_hevc = (
+                ' --no-open-gop --keyint ' + keyint + ' --min-keyint ' + keyint + ' --scenecut 0'
+        )
+    else:
+        keyint_scenecut_avc = ''
+        keyint_scenecut_hevc = ''
+
     '''encode'''
     if codec == 'avc':
         cmd = [
             cmd_base +
-            'x264 --log-level warning --demuxer y4m' +
+            'x264 --threads 1 --log-level warning --demuxer y4m' +
             ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
             ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level +
-            ' --keyint ' + keyint + ' --min-keyint ' + keyint + ' --scenecut 0' +
-            ' --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' + encode_extra_settings + hdr_settings +
+            keyint_scenecut_avc + ' ' + encode_extra_settings + hdr_settings +
             ' --stitchable -o "' + out_raw + '" -',
         ]
     elif codec == 'hevc':
         cmd = [
             cmd_base +
-            'x265 --log-level warning --y4m' +
+            'x265 --frame-threads 1 --no-wpp --log-level warning --y4m' +
             ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
             ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level + ' --high-tier' +
-            ' --no-open-gop --keyint ' + keyint + ' --min-keyint ' + keyint + ' --scenecut 0 --scenecut-bias 0' +
-            ' --rc-lookahead ' + str(round(video_fps_float * 2)) + ' ' + encode_extra_settings + hdr_settings +
+            keyint_scenecut_hevc + ' ' + encode_extra_settings + hdr_settings +
             ' --no-info --repeat-headers --hrd-concat -o "' + out_raw + '" -',
         ]
     else:

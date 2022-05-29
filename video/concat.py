@@ -2,13 +2,13 @@ import os
 import concurrent.futures
 import subprocess
 import multiprocessing
-import encode_settings
+import encode_list
 import video.encode
-
-ladder = encode_settings.encode_settings['ladder']
 
 
 def concat(quality, video_media_info=None, segment_list=None):
+    ladder = encode_list.read_encode_list()['ladder']
+
     ext = ladder[quality]['ext']
     worker_num = max(int(multiprocessing.cpu_count() * 0.5), 1)
 
@@ -20,7 +20,7 @@ def concat(quality, video_media_info=None, segment_list=None):
         segment_list_key_sorted[key] = segment_list[key]['duration_padding']
     segment_list_key_sorted = dict(sorted(segment_list_key_sorted.items(), key=lambda item: item[1], reverse=True))
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=worker_num) as executor:
         futures = []
         result_list = {}
         for seg_num in segment_list_key_sorted:
@@ -33,6 +33,7 @@ def concat(quality, video_media_info=None, segment_list=None):
                 start_time_padding=segment_list[seg_num]['start_time_padding'],
                 duration=segment_list[seg_num]['duration'],
                 duration_padding=segment_list[seg_num]['duration_padding'],
+                hls_compatible=segment_list[seg_num]['hls_compatible'],
                 keyint=segment_list[seg_num]['keyint'],
             ))
         for out_file in concurrent.futures.as_completed(futures):
