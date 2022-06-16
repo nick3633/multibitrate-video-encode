@@ -133,7 +133,7 @@ def encode(quality, video_media_info=None):
     if codec == 'avc':
         cmd = [
             cmd_base +
-            'x264 --threads 1 --log-level warning --demuxer y4m' +
+            'x264 --log-level warning --demuxer y4m' +
             ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
             ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level +
             keyint_scenecut_avc + ' ' + encode_extra_settings + hdr_settings +
@@ -142,7 +142,7 @@ def encode(quality, video_media_info=None):
     elif codec == 'hevc':
         cmd = [
             cmd_base +
-            'x265 --frame-threads 1 --no-wpp --log-level warning --y4m' +
+            'x265 --log-level warning --y4m' +
             ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
             ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level + ' --high-tier' +
             keyint_scenecut_hevc + ' ' + encode_extra_settings + hdr_settings +

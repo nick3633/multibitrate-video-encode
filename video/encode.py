@@ -164,7 +164,7 @@ def encode(
         )
     else:
         keyint_scenecut_avc = ''
-        keyint_scenecut_hevc = ''
+        keyint_scenecut_hevc = ' --no-open-gop'
 
     '''encode'''
     if not os.path.exists(out_raw):
@@ -180,7 +180,7 @@ def encode(
         elif codec == 'hevc':
             cmd = [
                 cmd_base +
-                'x265 --frame-threads 1 --no-wpp --log-level warning --y4m' +
+                'x265 --frame-threads 1 --pools "none" --log-level warning --y4m' +
                 ' --chunk-start ' + str(keyframe_min + 1) + ' --chunk-end ' + str(keyframe_max) +
                 ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
                 ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level + ' --high-tier' +
