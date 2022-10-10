@@ -10,8 +10,8 @@ encode_settings = '''
       "bufsize": "40000",
       "encode_speed": "medium",
       "encode_profile": "main10",
-      "encode_extra_settings": "--aq-mode 3",
-      "crf": "20"
+      "encode_extra_settings": "--no-sao --aq-mode 3",
+      "crf": "21.6"
     },
     "1080p.hevc": {
       "codec": "hevc",
@@ -22,7 +22,7 @@ encode_settings = '''
       "bufsize": "16000",
       "encode_speed": "medium",
       "encode_profile": "main10",
-      "encode_extra_settings": "--aq-mode 3",
+      "encode_extra_settings": "--no-sao --aq-mode 3",
       "crf": "18"
     },
     "480p.hevc": {
@@ -34,8 +34,8 @@ encode_settings = '''
       "bufsize": "5000",
       "encode_speed": "medium",
       "encode_profile": "main10",
-      "encode_extra_settings": "--aq-mode 3",
-      "crf": "16"
+      "encode_extra_settings": "--no-sao --aq-mode 3",
+      "crf": "14.5"
     },
     "2160p.hevc.hdr": {
       "codec": "hevc",
@@ -46,8 +46,8 @@ encode_settings = '''
       "bufsize": "40000",
       "encode_speed": "medium",
       "encode_profile": "main10",
-      "encode_extra_settings": "--aq-mode 3",
-      "crf": "17"
+      "encode_extra_settings": "--no-sao --aq-mode 3",
+      "crf": "18.6"
     },
     "1080p.hevc.hdr": {
       "codec": "hevc",
@@ -58,7 +58,7 @@ encode_settings = '''
       "bufsize": "16000",
       "encode_speed": "medium",
       "encode_profile": "main10",
-      "encode_extra_settings": "--aq-mode 3",
+      "encode_extra_settings": "--no-sao --aq-mode 3",
       "crf": "15"
     },
     "1080p.avc": {
@@ -70,7 +70,7 @@ encode_settings = '''
       "bufsize": "16000",
       "encode_speed": "medium",
       "encode_profile": "high",
-      "encode_extra_settings": "",
+      "encode_extra_settings": " --aq-mode 3",
       "crf": "18"
     },
     "480p.avc": {
@@ -82,8 +82,8 @@ encode_settings = '''
       "bufsize": "5000",
       "encode_speed": "medium",
       "encode_profile": "main",
-      "encode_extra_settings": "",
-      "crf": "16"
+      "encode_extra_settings": " --aq-mode 3",
+      "crf": "14.5"
     }
   },
   "video_other_settings": {

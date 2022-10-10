@@ -247,9 +247,9 @@ def main(package_dir):
         del audio_encode_list['2_0.ac3']
 
     reuse_audio_info = {
-        'in_bucket_name': None,
-        'out_bucket_name': None,
-        'tmp_audio_file': None
+        'in_bucket_name': '',
+        'out_bucket_name': '',
+        'tmp_audio_file': ''
     }
     for key in audio_encode_list:
         reuse_audio_info = audio.encode.encode(key, audio_encode_list[key], reuse_audio_info)
@@ -265,5 +265,5 @@ def main(package_dir):
         subprocess.call(item, shell=True)
     if reuse_audio_info['tmp_audio_file'] and os.path.exists(reuse_audio_info['tmp_audio_file']):
         os.remove(reuse_audio_info['tmp_audio_file'])
-    if os.path.exists('encode_settings.json'):
-        os.remove('encode_settings.json')
+    '''if os.path.exists('encode_settings.json'):
+        os.remove('encode_settings.json')'''

@@ -3,8 +3,8 @@ import json
 
 def write_encode_list(custom_encode_settings):
     ext = {
-        'avc': '264',
-        'hevc': '265'
+        'avc': 'h264',
+        'hevc': 'h265'
     }
     for item in custom_encode_settings['video_encode_list']:
         codec = custom_encode_settings['video_encode_list'][item]['codec']

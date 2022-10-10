@@ -144,7 +144,7 @@ def encode(quality, video_media_info=None):
             cmd_base +
             'x265 --log-level warning --y4m' +
             ' --crf ' + crf + ' --vbv-maxrate ' + maxrate + ' --vbv-bufsize ' + bufsize +
-            ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level + ' --high-tier' +
+            ' --preset ' + enc_speed + ' --profile ' + enc_profile + ' --level ' + enc_level +
             keyint_scenecut_hevc + ' ' + encode_extra_settings + hdr_settings +
             ' --no-info --repeat-headers --hrd-concat -o "' + out_raw + '" -',
         ]
