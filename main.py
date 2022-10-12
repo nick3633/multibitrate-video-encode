@@ -1,6 +1,8 @@
 import os
 import json
 import subprocess
+import concurrent.futures
+import multiprocessing
 
 import encode_list
 import default_encode_settings
@@ -237,8 +239,11 @@ def main(package_dir):
         for key in video_encode_list:
             video.concat.concat(key, video_media_info=video_encode_list[key], segment_list=segment_list)
     else:
-        for key in video_encode_list:
-            video.encode_traditional.encode(key, video_media_info=video_encode_list[key])
+        worker_num = max(int(multiprocessing.cpu_count() / 4), 1)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=worker_num) as executor:
+            for key in video_encode_list:
+                executor.submit(video.encode_traditional.encode, key, video_media_info=video_encode_list[key])
+        executor.shutdown()
 
     """encode audio"""
     if ('5_1.eac3' in audio_encode_list) and ('2_0.eac3' in audio_encode_list):

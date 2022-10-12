@@ -48,17 +48,16 @@ def scenecut_list(video_info):
             ' -sws_flags bicubic+accurate_rnd+full_chroma_int+full_chroma_inp+bitexact -sws_dither none' +
             ' -vf "crop=' + crop_settings + zscale + '"' +
             ' -pix_fmt yuv420p10 -strict -1 -f yuv4mpegpipe -y - | ' +
-            'x265 --y4m --crf 23 --preset medium --profile main10' +
-            ' --keyint ' + str(video_frame_count + 1) + ' -o "scenecut.265" -',
-            'MP4Box -add "scenecut.265" -new "scenecut.mp4"'
+            'x264 --demuxer y4m --crf 23 --keyint ' + str(video_frame_count + 1) + ' -o "scenecut.h264" -',
+            'MP4Box -add "scenecut.h264" -new "scenecut.mp4"'
     ]
 
     if not os.path.exists('scenecut.mp4'):
         for i in cmd:
             print(cmd)
             subprocess.call(i, shell=True)
-    if os.path.exists('scenecut.265'):
-        os.remove('scenecut.265')
+    if os.path.exists('scenecut.h264'):
+        os.remove('scenecut.h264')
 
     cmd = 'ffprobe -v error -show_entries frame=pict_type -of json scenecut.mp4 > frame_type.json'
     if not os.path.exists('frame_type.json'):
@@ -81,7 +80,7 @@ def scenecut_list(video_info):
         i = 0
         for item in scenecut_start_frame:
             try:
-                if scenecut_start_frame[i + 1] - item < round(video_fps_float * 1):
+                if scenecut_start_frame[i + 1] - item < int(video_fps_float * 1):
                     del scenecut_start_frame[i + 1]
                     scenecut_start_frame = sorted(list(dict.fromkeys(scenecut_start_frame)))
                     break
