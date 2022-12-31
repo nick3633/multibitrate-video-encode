@@ -1,5 +1,7 @@
 import xml.etree.ElementTree as ET
 
+import util
+
 
 def metadata(dovi_metadata):
     tree = ET.parse(dovi_metadata)
@@ -12,16 +14,16 @@ def metadata(dovi_metadata):
     white_point = mastering_display.find('WhitePoint').text
 
     master_display = 'G({gx},{gy})B({bx},{by})R({rx},{ry})WP({wpx},{wpy})L({lmax},{lmin})'.format(
-        gx=str(round(float(green.split(',')[0]) * 50000)),
-        gy=str(round(float(green.split(',')[1]) * 50000)),
-        bx=str(round(float(blue.split(',')[0]) * 50000)),
-        by=str(round(float(blue.split(',')[1]) * 50000)),
-        rx=str(round(float(red.split(',')[0]) * 50000)),
-        ry=str(round(float(red.split(',')[1]) * 50000)),
-        wpx=str(round(float(white_point.split(',')[0]) * 50000)),
-        wpy=str(round(float(white_point.split(',')[1]) * 50000)),
-        lmax=str(round(float(mastering_display.find('PeakBrightness').text) * 10000)),
-        lmin=str(round(float(mastering_display.find('MinimumBrightness').text) * 10000)),
+        gx=str(util.math_round(float(green.split(',')[0]) * 50000)),
+        gy=str(util.math_round(float(green.split(',')[1]) * 50000)),
+        bx=str(util.math_round(float(blue.split(',')[0]) * 50000)),
+        by=str(util.math_round(float(blue.split(',')[1]) * 50000)),
+        rx=str(util.math_round(float(red.split(',')[0]) * 50000)),
+        ry=str(util.math_round(float(red.split(',')[1]) * 50000)),
+        wpx=str(util.math_round(float(white_point.split(',')[0]) * 50000)),
+        wpy=str(util.math_round(float(white_point.split(',')[1]) * 50000)),
+        lmax=str(util.math_round(float(mastering_display.find('PeakBrightness').text) * 10000)),
+        lmin=str(util.math_round(float(mastering_display.find('MinimumBrightness').text) * 10000)),
     )
     cll = '{cll},{fall}'.format(
         cll=root.find('Outputs/Output/Video/Track/Level6/MaxCLL').text,

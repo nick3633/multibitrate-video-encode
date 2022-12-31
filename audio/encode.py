@@ -8,6 +8,7 @@ import shutil
 
 
 import encode_list
+import util
 
 
 def encode(quality, audio_info, reuse_audio_info):
@@ -43,12 +44,12 @@ def encode(quality, audio_info, reuse_audio_info):
         }
 
     if codec == 'eac3' and channel != 'object_based':
-        dialnorm = round(audio_info['audio_loudness'][audio_track] * -1)
+        dialnorm = util.math_round(audio_info['audio_loudness'][audio_track] * -1)
         dialnorm = min(dialnorm, 31)
         dialnorm = max(dialnorm, 1)
         codec_settings['Eac3Settings']['Dialnorm'] = dialnorm
     elif codec == 'ac3':
-        dialnorm = round(audio_info['audio_loudness'][audio_track] * -1)
+        dialnorm = util.math_round(audio_info['audio_loudness'][audio_track] * -1)
         dialnorm = min(dialnorm, 31)
         dialnorm = max(dialnorm, 1)
         codec_settings['Ac3Settings']['Dialnorm'] = dialnorm
@@ -140,7 +141,7 @@ def encode(quality, audio_info, reuse_audio_info):
                             }
                         ],
                         "ContainerSettings": {
-                            "Container": "RAW"
+                            "Container": "MP4"
                         },
                         "Extension": ext
                     }

@@ -162,14 +162,15 @@ def get_level(
     if codec == 'avc':
         mb = math.ceil(codded_width / 16) * math.ceil(codded_height / 16)
         mbps = mb * fps
-        maxrate = max(maxrate, bufsize)
         for key in h264_levels:
             level_mbps = h264_levels[key]['mbps']
             level_mb = h264_levels[key]['mb']
             level_maxrate = h264_levels[key]['maxrate']
+            level_bufsize = h264_levels[key]['maxrate']
             if profile == 'high':
                 level_maxrate = level_maxrate * 1.25
-            if (mbps <= level_mbps and mb <= level_mb) and maxrate <= level_maxrate:
+                level_bufsize = h264_levels[key]['maxrate'] * 1.25 * 1.25
+            if (mbps <= level_mbps and mb <= level_mb) and maxrate <= level_maxrate and bufsize <= level_bufsize:
                 return key
         return '0'
     elif codec == 'hevc':

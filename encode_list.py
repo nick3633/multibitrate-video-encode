@@ -15,7 +15,7 @@ def write_encode_list(custom_encode_settings):
         "audio_ladder": {
             "atmos.eac3": {
                 "codec": "eac3",
-                "ext": "ec3",
+                "ext": "m4a",
                 "channel": "object_based",
                 'codec_settings': {
                     "Codec": "EAC3_ATMOS",
@@ -35,7 +35,7 @@ def write_encode_list(custom_encode_settings):
 
             "5_1.eac3": {
                 "codec": "eac3",
-                "ext": "ec3",
+                "ext": "m4a",
                 "channel": "5_1",
                 'codec_settings': {
                     "Codec": "EAC3",
@@ -62,7 +62,7 @@ def write_encode_list(custom_encode_settings):
             },
             "5_1.ac3": {
                 "codec": "ac3",
-                "ext": "ac3",
+                "ext": "m4a",
                 "channel": "5_1",
                 'codec_settings': {
                     "Codec": "AC3",
@@ -80,7 +80,7 @@ def write_encode_list(custom_encode_settings):
 
             "2_0.eac3": {
                 "codec": "eac3",
-                "ext": "ec3",
+                "ext": "m4a",
                 "channel": "2_0",
                 'codec_settings': {
                     "Codec": "EAC3",
@@ -98,7 +98,7 @@ def write_encode_list(custom_encode_settings):
             },
             "2_0.ac3": {
                 "codec": "ac3",
-                "ext": "ac3",
+                "ext": "m4a",
                 "channel": "2_0",
                 'codec_settings': {
                     "Codec": "AC3",
@@ -114,7 +114,7 @@ def write_encode_list(custom_encode_settings):
             },
             "2_0.aac": {
                 "codec": "aac",
-                "ext": "aac",
+                "ext": "m4a",
                 "channel": "2_0",
                 'codec_settings': {
                     "Codec": "AAC",
@@ -131,7 +131,7 @@ def write_encode_list(custom_encode_settings):
     }
 
     with open('encode_settings.json', 'w') as encode_settings_file:
-        encode_settings_file.write(json.dumps(encode_settings))
+        encode_settings_file.write(json.dumps(encode_settings, indent=2))
 
     return 'encode_settings.json'
 

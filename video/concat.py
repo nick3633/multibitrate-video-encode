@@ -10,9 +10,13 @@ def concat(quality, video_media_info=None, segment_list=None):
     ladder = encode_list.read_encode_list()['ladder']
 
     ext = ladder[quality]['ext']
-    worker_num = max(int(multiprocessing.cpu_count() / 4), 1)
+    worker_num = max(int(multiprocessing.cpu_count() / 2), 1)
 
-    if os.path.exists(quality + '.' + ext):
+    final = quality + '.' + ext
+    tmp_mp4 = quality + '.tmp.mp4'
+    tmp_raw = quality + '.tmp.' + ext
+
+    if os.path.exists(final):
         return None
 
     segment_list_key_sorted = {}
@@ -33,7 +37,6 @@ def concat(quality, video_media_info=None, segment_list=None):
                 start_time_padding=segment_list[seg_num]['start_time_padding'],
                 duration=segment_list[seg_num]['duration'],
                 duration_padding=segment_list[seg_num]['duration_padding'],
-                hls_compatible=segment_list[seg_num]['hls_compatible'],
                 keyint=segment_list[seg_num]['keyint'],
             ))
         for out_file in concurrent.futures.as_completed(futures):
@@ -47,13 +50,13 @@ def concat(quality, video_media_info=None, segment_list=None):
         split_list = split_list + result_list[seg]['split_list']
 
     ''' build mp4box cmd '''
-    with open('tmp.' + ext, 'ab') as concat_file:
+    with open(tmp_raw, 'ab') as concat_file:
         for item in split_list:
             concat_file.write(open(item, 'rb').read())
 
     cmd_list = [
-        'MP4Box -add tmp.' + ext + ' -new "tmp.mp4"',
-        'MP4Box -raw 1:output=' + quality + '.' + ext + ' "tmp.mp4"'
+        'MP4Box -add "' + tmp_raw + '" -new "' + tmp_mp4 + '"',
+        'MP4Box -raw 1:output=' + final + ' "' + tmp_mp4 + '"'
     ]
     for cmd in cmd_list:
         print(cmd)
@@ -62,7 +65,7 @@ def concat(quality, video_media_info=None, segment_list=None):
     for item in split_list:
         if os.path.exists(item):
             os.remove(item)
-    if os.path.exists('tmp.mp4'):
-        os.remove('tmp.mp4')
-    if os.path.exists('tmp.' + ext):
-        os.remove('tmp.' + ext)
+    if os.path.exists(tmp_mp4):
+        os.remove(tmp_mp4)
+    if os.path.exists(tmp_raw):
+        os.remove(tmp_raw)

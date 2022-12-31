@@ -2,8 +2,10 @@ import os
 import subprocess
 import json
 
+import util
 
-def scenecut_list(video_info):
+
+def scenecut_list(video_info, output_segment_list=False, output_qpfile=True, chunked_encoding=True):
     if os.path.exists('segment_list.json'):
         with open('segment_list.json', 'r') as segment_list_file:
             return json.loads(segment_list_file.read())
@@ -20,7 +22,9 @@ def scenecut_list(video_info):
     video_fps_float = int(video_fps.split('/')[0]) / int(video_fps.split('/')[1])
 
     hls_compatible = video_info['hls_compatible']
-    hls_compatible_keyint_second = video_info['hls_compatible_keyint_second']
+    hls_compatible_dynamic_keyint = video_info['hls_compatible_dynamic_keyint']
+    hls_compatible_keyint = video_info['hls_compatible_keyint']
+
 
     scenecut_start_frame = [0]
     cut_type = {}
@@ -44,9 +48,7 @@ def scenecut_list(video_info):
     zscale = ',zscale=' + res_settings + ':filter=bicubic'
 
     cmd = [
-            'ffmpeg -loglevel warning -i "' + video_path + '"' +
-            ' -sws_flags bicubic+accurate_rnd+full_chroma_int+full_chroma_inp+bitexact -sws_dither none' +
-            ' -vf "crop=' + crop_settings + zscale + '"' +
+            'ffmpeg -loglevel warning -i "' + video_path + '" -vf "crop=' + crop_settings + zscale + '"' +
             ' -pix_fmt yuv420p10 -strict -1 -f yuv4mpegpipe -y - | ' +
             'x264 --demuxer y4m --crf 23 --keyint ' + str(video_frame_count + 1) + ' -o "scenecut.h264" -',
             'MP4Box -add "scenecut.h264" -new "scenecut.mp4"'
@@ -84,9 +86,9 @@ def scenecut_list(video_info):
                     del scenecut_start_frame[i + 1]
                     scenecut_start_frame = sorted(list(dict.fromkeys(scenecut_start_frame)))
                     break
-                '''if scenecut_start_frame[i + 1] - item > round(video_fps_float * 60 * 3):
-                    new_scenecut = round((item + scenecut_start_frame[i + 1]) / 2)
-                    new_scenecut = round(video_fps_float) * round(new_scenecut / round(video_fps_float))
+                '''if scenecut_start_frame[i + 1] - item > util.math_round(video_fps_float * 60 * 3):
+                    new_scenecut = util.math_round((item + scenecut_start_frame[i + 1]) / 2)
+                    new_scenecut = util.math_round(video_fps_float) * util.math_round(new_scenecut / util.math_round(video_fps_float))
                     scenecut_start_frame.append(new_scenecut)
                     scenecut_start_frame = sorted(list(dict.fromkeys(scenecut_start_frame)))
                     break'''
@@ -98,7 +100,18 @@ def scenecut_list(video_info):
     scenecut_start_frame = scenecut_start_frame[:-1]
     scenecut_start_frame = sorted(list(dict.fromkeys(scenecut_start_frame)))
 
+    if hls_compatible is True:
+        if hls_compatible_keyint[1] == 's':
+            keyint = str(util.math_round(video_fps_float * hls_compatible_keyint[0]))
+        elif hls_compatible_keyint[1] == 'f':
+            keyint = str(util.math_round(hls_compatible_keyint[0]))
+        else:
+            keyint = str(util.math_round(video_fps_float * hls_compatible_keyint[0]))
+
+    else:
+        keyint = None
     n = 0
+    qpfile_string = ''
     for point in scenecut_start_frame:
         start_time = point
         try:
@@ -106,12 +119,8 @@ def scenecut_list(video_info):
         except IndexError:
             duration = (video_frame_count - point)
 
-        if hls_compatible is True:
-            keyint = str(round(video_fps_float * hls_compatible_keyint_second))
-        else:
-            keyint = None
-        start_time_padding = start_time - round(video_fps_float * 2)
-        duration_padding = duration + round(video_fps_float * 2) + round(video_fps_float * 2)
+        start_time_padding = start_time - 60
+        duration_padding = duration + 60 + 60
 
         segmant_list[str(n)] = {
             'start_time': int(start_time),
@@ -121,8 +130,31 @@ def scenecut_list(video_info):
             'hls_compatible': hls_compatible,
             'keyint': keyint,
         }
+        qpfile_string += str(int(start_time + 60)) + ' I\n'
         n = n + 1
+    qpfile_string += str(int(video_frame_count + 60)) + ' I\n'
 
+    if chunked_encoding is False:
+        segmant_list = {
+            "0": {
+                'start_time': 0,
+                'start_time_padding': int(0 - 60),
+                'duration': int(video_frame_count),
+                'duration_padding': int(video_frame_count + 60 + 60),
+                'hls_compatible': hls_compatible,
+                'keyint': keyint,
+            }
+        }
+        if hls_compatible_dynamic_keyint is False:
+            qpfile_string = str(int(60)) + ' I\n'
+            qpfile_string += str(int(video_frame_count + 60)) + ' I\n'
+        if output_qpfile is True:
+            if not os.path.exists('0/'):
+                os.mkdir('0/')
+            with open('0/qp.txt', 'w') as qpfile:
+                qpfile.write(qpfile_string)
+
+    if output_segment_list is True:
         with open('segment_list.json', 'w') as segment_list_file:
             segment_list_file.write(json.dumps(segmant_list, indent=2))
 

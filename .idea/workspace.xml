@@ -2,17 +2,30 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b1b6575d-702d-4f0b-81e6-4a27a2b19cbe" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/util.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/audio/encode.py" beforeDir="false" afterPath="$PROJECT_DIR$/audio/encode.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/default_encode_settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/default_encode_settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/encode_list.py" beforeDir="false" afterPath="$PROJECT_DIR$/encode_list.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/video/concat.py" beforeDir="false" afterPath="$PROJECT_DIR$/video/concat.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/video/dovi.py" beforeDir="false" afterPath="$PROJECT_DIR$/video/dovi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/video/encode.py" beforeDir="false" afterPath="$PROJECT_DIR$/video/encode.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/video/encode_traditional.py" beforeDir="false" afterPath="$PROJECT_DIR$/video/encode_traditional.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/video/get_level.py" beforeDir="false" afterPath="$PROJECT_DIR$/video/get_level.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/video/scenecut.py" beforeDir="false" afterPath="$PROJECT_DIR$/video/scenecut.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -29,7 +42,7 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/GitHub/multibitrate-video-encode&quot;
+    &quot;last_opened_file_path&quot;: &quot;C:/Remuxer&quot;
   }
 }</component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />

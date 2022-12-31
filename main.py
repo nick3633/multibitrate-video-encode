@@ -8,12 +8,12 @@ import encode_list
 import default_encode_settings
 import video.dovi
 import video.encode
-import video.encode_traditional
 import video.mediainfo
 import video.scenecut
 import video.concat
 import audio.mediainfo
 import audio.encode
+import util
 
 
 def main(package_dir):
@@ -28,7 +28,7 @@ def main(package_dir):
         old_encode_settings = json.loads(default_encode_settings.encode_settings)
         with open(os.path.join(package_dir, 'encode_settings.json'), 'r') as encode_settings_file:
             custom_encode_settings = json.loads(encode_settings_file.read())
-        custom_encode_settings = {**old_encode_settings, **custom_encode_settings}
+        custom_encode_settings = {**custom_encode_settings, **old_encode_settings}
     else:
         custom_encode_settings = json.loads(default_encode_settings.encode_settings)
 
@@ -42,10 +42,14 @@ def main(package_dir):
     hdr_highest_res_only = custom_encode_settings['video_other_settings']['hdr_highest_res_only']
     replace_sdr_with_hdr = custom_encode_settings['video_other_settings']['replace_sdr_with_hdr']
     hls_compatible = custom_encode_settings['video_other_settings']['hls_compatible']
-    hls_compatible_keyint_second = None
+    hls_compatible_keyint = []
+    hls_compatible_dynamic_keyint = False
     if hls_compatible is True:
-        hls_compatible_keyint_second = \
-            custom_encode_settings['video_other_settings']['hls_compatible_settings']['keyint_second']
+        hls_compatible_keyint = \
+            custom_encode_settings['video_other_settings']['hls_compatible_settings']['keyint']
+        hls_compatible_dynamic_keyint = \
+            custom_encode_settings['video_other_settings']['hls_compatible_settings']['dynamic_keyint']
+    two_pass_encoding = custom_encode_settings['video_other_settings']['two_pass_encoding']
 
     """create final encode list"""
     video_encode_list = {}
@@ -71,7 +75,9 @@ def main(package_dir):
                 'video_cropped_width': video_mediainfo['video_cropped_width'],
                 'video_cropped_height': video_mediainfo['video_cropped_height'],
                 'hls_compatible': hls_compatible,
-                'hls_compatible_keyint_second': hls_compatible_keyint_second,
+                'hls_compatible_keyint': hls_compatible_keyint,
+                'hls_compatible_dynamic_keyint': hls_compatible_dynamic_keyint,
+                'two_pass_encoding': two_pass_encoding,
             }
 
             for v_ladder_item in v_ladder:
@@ -108,16 +114,16 @@ def main(package_dir):
             cll = ''
             if item['hdr']['format'] == 'hdr10':
                 master_display = 'G({gx},{gy})B({bx},{by})R({rx},{ry})WP({wpx},{wpy})L({lmax},{lmin})'.format(
-                    gx=str(round(item['hdr']['hdr10']['mastering_display']['green_x'] * 50000)),
-                    gy=str(round(item['hdr']['hdr10']['mastering_display']['green_y'] * 50000)),
-                    bx=str(round(item['hdr']['hdr10']['mastering_display']['blue_x'] * 50000)),
-                    by=str(round(item['hdr']['hdr10']['mastering_display']['blue_y'] * 50000)),
-                    rx=str(round(item['hdr']['hdr10']['mastering_display']['red_x'] * 50000)),
-                    ry=str(round(item['hdr']['hdr10']['mastering_display']['red_y'] * 50000)),
-                    wpx=str(round(item['hdr']['hdr10']['mastering_display']['white_point_x'] * 50000)),
-                    wpy=str(round(item['hdr']['hdr10']['mastering_display']['white_point_y'] * 50000)),
-                    lmax=str(round(item['hdr']['hdr10']['mastering_display']['luminance_max'] * 10000)),
-                    lmin=str(round(item['hdr']['hdr10']['mastering_display']['luminance_min'] * 10000)),
+                    gx=str(util.math_round(item['hdr']['hdr10']['mastering_display']['green_x'] * 50000)),
+                    gy=str(util.math_round(item['hdr']['hdr10']['mastering_display']['green_y'] * 50000)),
+                    bx=str(util.math_round(item['hdr']['hdr10']['mastering_display']['blue_x'] * 50000)),
+                    by=str(util.math_round(item['hdr']['hdr10']['mastering_display']['blue_y'] * 50000)),
+                    rx=str(util.math_round(item['hdr']['hdr10']['mastering_display']['red_x'] * 50000)),
+                    ry=str(util.math_round(item['hdr']['hdr10']['mastering_display']['red_y'] * 50000)),
+                    wpx=str(util.math_round(item['hdr']['hdr10']['mastering_display']['white_point_x'] * 50000)),
+                    wpy=str(util.math_round(item['hdr']['hdr10']['mastering_display']['white_point_y'] * 50000)),
+                    lmax=str(util.math_round(item['hdr']['hdr10']['mastering_display']['luminance_max'] * 10000)),
+                    lmin=str(util.math_round(item['hdr']['hdr10']['mastering_display']['luminance_min'] * 10000)),
                 )
                 cll = '{cll},{fall}'.format(
                     cll=str(item['hdr']['hdr10']['content_lightlevel']['max']),
@@ -148,7 +154,9 @@ def main(package_dir):
                 'video_transfer_characteristics': video_mediainfo['video_transfer_characteristics'],
                 'video_matrix_coefficients': video_mediainfo['video_matrix_coefficients'],
                 'hls_compatible': hls_compatible,
-                'hls_compatible_keyint_second': hls_compatible_keyint_second,
+                'hls_compatible_keyint': hls_compatible_keyint,
+                'hls_compatible_dynamic_keyint': hls_compatible_dynamic_keyint,
+                'two_pass_encoding': two_pass_encoding,
             }
             for v_ladder_item in v_ladder:
                 item_width = int(v_ladder[v_ladder_item]['codded_width'])
@@ -234,16 +242,24 @@ def main(package_dir):
     print(json.dumps(video_encode_list, indent=2))
 
     """encode video"""
+    segment_list = video.scenecut.scenecut_list(
+        video_info,
+        output_segment_list=True,
+        output_qpfile=True,
+        chunked_encoding=chunked_encoding)
     if chunked_encoding is True:
-        segment_list = video.scenecut.scenecut_list(video_info)
-        for key in video_encode_list:
-            video.concat.concat(key, video_media_info=video_encode_list[key], segment_list=segment_list)
+        worker_num = 1
     else:
         worker_num = max(int(multiprocessing.cpu_count() / 4), 1)
-        with concurrent.futures.ThreadPoolExecutor(max_workers=worker_num) as executor:
-            for key in video_encode_list:
-                executor.submit(video.encode_traditional.encode, key, video_media_info=video_encode_list[key])
-        executor.shutdown()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=worker_num) as executor:
+        for key in video_encode_list:
+            executor.submit(
+                video.concat.concat,
+                key,
+                video_media_info=video_encode_list[key],
+                segment_list=segment_list
+            )
+    executor.shutdown()
 
     """encode audio"""
     if ('5_1.eac3' in audio_encode_list) and ('2_0.eac3' in audio_encode_list):
